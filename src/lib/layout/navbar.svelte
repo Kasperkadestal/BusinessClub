@@ -33,7 +33,7 @@
     </a>
 
     <div
-      class="card p-4 w-96 !left-[calc(100%-430px)]"
+      class="card p-8 w-96 !left-[calc(100%-430px)]"
       data-popup="popupClick"
     >
       <TabGroup>
@@ -105,7 +105,7 @@
           {/if}
         </svelte:fragment>
       </TabGroup>
-      <div class="arrow variant-filled-tertiary" />
+      <div class="arrow variant-filled-surface" />
     </div>
   </svelte:fragment>
 </AppBar>
