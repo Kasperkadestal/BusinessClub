@@ -1,8 +1,32 @@
 <script lang="ts">
-    export let counter : number;
+  import { SlideToggle } from "@skeletonlabs/skeleton";
 
+  export let counter: number;
 </script>
 
-<div class="shrink-0 w-[28%] h-48 card snap-start text-center">
-    <p class="h-12 bg-black flex items-center justify-center"><b>Vecka {counter + 1} | </b>&nbsp;Business Club</p> 
+<div class="shrink-0 w-[28%] h-64 card snap-start text-center">
+  <div class="flex bg-primary-800 items-center justify-between px-6 h-12">
+    <p class="h-12 flex items-center justify-left">
+      <b>Vecka {counter + 1} | </b>&nbsp;Business Club
+    </p>
+    <SlideToggle name="slider-small" active="bg-primary-500" size="sm" />
+  </div>
+  <div class="p-6 pt-4 text-justify h-36 opacity-50">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fermentum,
+    ligula egestas interdum fringilla, elit velit dictum dui, ut tincidunt nisi.
+  </div>
+  <div
+    class="border-t border-surface-900 flex items-center justify-between px-6 h-16"
+  >
+    <a
+      class="btn btn-sm variant-ghost-surface opacity-50"
+      href="https://github.com/skeletonlabs/skeleton"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Lägg till gäst...
+    </a>
+  </div>
 </div>
+
+
