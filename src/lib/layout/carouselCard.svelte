@@ -7,7 +7,7 @@
 <div class="shrink-0 w-[28%] h-64 card snap-start text-center">
   <div class="flex bg-primary-800 items-center justify-between px-6 h-12">
     <p class="h-12 flex items-center justify-left">
-      <b>Vecka {counter + 1} | </b>&nbsp;Business Club
+      <b>Vecka {counter + 1} | </b>&nbsp;2023-0{(counter + 1)%9+1}-1{(counter + 1)%9}
     </p>
     <SlideToggle name="slider-small" active="bg-primary-500" size="sm" />
   </div>
