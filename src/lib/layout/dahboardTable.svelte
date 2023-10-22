@@ -5,50 +5,39 @@
     type TableSource,
   } from "@skeletonlabs/skeleton";
 
-  const sourceData = [
-    {
-      position: 1,
-      name: "Vecka 1",
-      date: "2023-02-11",
-      participants: "15 deltagare",
-      time: "12:00",
-    },
-    {
-      position: 2,
-      name: "Vecka 2",
-      date: "2023-03-11",
-      participants: "15 deltagare",
-      time: "12:00",
-    },
-    {
-      position: 3,
-      name: "Vecka 3",
-      date: "2023-04-11",
-      participants: "15 deltagare",
-      time: "12:00",
-    },
-    {
-      position: 4,
-      name: "Vecka 4",
-      date: "2023-05-11",
-      participants: "15 deltagare",
-      time: "12:00",
-    },
-  ];
+  // Supabase
+  import { supabase } from "$lib/supabaseClient";
+  import { onMount } from "svelte";
 
-  const tableSimple: TableSource = {
-    // A list of heading labels.
-    head: ["Möten", "", "", ""],
-    // The data visibly shown in your table body UI.
-    body: tableMapperValues(sourceData, [
-      "name",
-      "date",
-      "participants",
-      "time",
-    ]),
-    // Optional: The data returned when interactive is enabled and a row is clicked.
-    meta: tableMapperValues(sourceData, ["position", "name"]),
+  let sourceData: { meeting: Array<{ date: string, description: string }> } = {
+    meeting: [],
   };
+
+  onMount(async () => {
+    const { data, error } = await supabase
+      .from("meeting")
+      .select("date, description");
+
+    if (error) {
+      console.error("Error fetching data:", error);
+    } else {
+      sourceData.meeting = data ?? [];
+    }
+  });
+  
+  // Make tableSimple reactive to changes in sourceData.meeting
+  let tableSimple: TableSource;
+
+  $: {
+    tableSimple = {
+      // A list of heading labels.
+      head: ["Möten", ""],
+      // The data visibly shown in your table body UI.
+      body: tableMapperValues(sourceData.meeting, ["date", "description"]),
+      // Optional: The data returned when interactive is enabled and a row is clicked.
+      meta: tableMapperValues(sourceData.meeting, ["date", "description"]),
+    };
+  }
 </script>
 
 <Table source={tableSimple} />
