@@ -1,0 +1,11 @@
+Radio buttons, ja nej kanske. grön, gul, röd.
+
+Name, website, work, email, picture, work description.
+
+Max 3 contacts per week. Send to huvudperson or company.
+
+Send message to business club.
+
+See invoices.
+
+Admin. Invoices. Table raffle per company. 

@@ -19,7 +19,7 @@
 
 <AppBar class="!bg-primary-800">
   <svelte:fragment slot="lead">
-    <strong class="text-xl uppercase">Business Club</strong>
+    <strong class="text-xl uppercase">Bizz Club</strong>
   </svelte:fragment>
   <svelte:fragment slot="trail">
     <a class="btn btn-sm variant-ghost-surface" use:popup={popupClick}>
@@ -78,7 +78,10 @@
         <!-- Tab Panels --->
         <svelte:fragment slot="panel">
           {#if tabSet === 0}
-            (tab panel 1 contents)
+            <div>
+              <div>Antal gäster kvar: 5</div>
+              <button class="btn variant-filled-primary mt-8">Logga ut</button>
+            </div>
           {:else if tabSet === 1}
             <label class="label">
               <span>Input</span>
