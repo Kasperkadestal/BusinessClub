@@ -32,10 +32,7 @@
       Peter Petersson
     </a>
 
-    <div
-      class="card p-8 w-96 !left-[calc(100%-430px)]"
-      data-popup="popupClick"
-    >
+    <div class="card p-8 w-96 !left-[calc(100%-430px)]" data-popup="popupClick">
       <TabGroup>
         <Tab bind:group={tabSet} name="tab1" value={0}>
           <svelte:fragment slot="lead">
@@ -83,32 +80,54 @@
               <button class="btn variant-filled-primary mt-8">Logga ut</button>
             </div>
           {:else if tabSet === 1}
-            <label class="label">
-              <span>Input</span>
-              <input class="input" type="text" placeholder="Input" />
-            </label>
-            <label class="label">
-              <span>Select</span>
-              <select class="select">
-                <option value="1">Option 1</option>
-                <option value="2">Option 2</option>
-                <option value="3">Option 3</option>
-                <option value="4">Option 4</option>
-                <option value="5">Option 5</option>
-              </select>
-            </label>
-            <label class="label">
-              <span>Textarea</span>
-              <textarea
-                class="textarea"
-                rows="4"
-                placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit."
-              />
-            </label>
+            <div class="flex flex-col gap-4">
+              <label class="label text-sm">
+                <span>Namn</span>
+                <input
+                  class="input !rounded"
+                  type="text"
+                  placeholder="Peter Petersson"
+                />
+              </label>
+              <label class="label text-sm">
+                <span>Email</span>
+                <input
+                  class="input !rounded"
+                  type="text"
+                  placeholder="Peter.petersson@jenka.com"
+                />
+              </label>
+              <label class="label text-sm">
+                <span>Företag</span>
+                <input class="input !rounded" type="text" placeholder="Jenka" />
+              </label>
+              <label class="label text-sm">
+                <span>Hemsida</span>
+                <input class="input !rounded" type="text" placeholder="Jenka.com" />
+              </label>
+              <label class="label text-sm">
+                <span>Tjänst</span>
+                <select class="select">
+                  <option value="1">Finans</option>
+                  <option value="2">Design</option>
+                  <option value="3">Ingenjör</option>
+                  <option value="4">Välgörenhet</option>
+                  <option value="5">Bygg</option>
+                </select>
+              </label>
+              <label class="label text-sm">
+                <span>Om Jenka</span>
+                <textarea
+                  class="textarea"
+                  rows="4"
+                  placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit."
+                />
+              </label>
+            </div>
           {/if}
         </svelte:fragment>
       </TabGroup>
-      <div class="arrow variant-filled-surface" />
+      <div class="arrow variant-filled-surface !bg-surface-800" />
     </div>
   </svelte:fragment>
 </AppBar>
