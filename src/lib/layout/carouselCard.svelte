@@ -63,8 +63,8 @@
       </div>
     </RadioItem>
     <RadioItem
-      active="variant-filled-surface"
-      hover="hover:variant-soft-surface"
+      active="variant-filled-error"
+      hover="hover:variant-soft-error"
       bind:group={value}
       name="justify"
       value={2}

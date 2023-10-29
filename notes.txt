@@ -1,12 +1,17 @@
-Radio buttons, ja nej kanske. grön, gul, röd.
-::::::::::::::::::::::::::::::::::::::::::::::
+
 
 Name, website, work, email, picture, work description.
+::::::::::::::::::::::::::::::::::::::::::::::
 
+Radio buttons, ja nej kanske. grön, gul, röd.
 Max 3 contacts per week. Send to huvudperson or company.
 
 Send message to business club.
 
 See invoices.
 
-Admin. Invoices. Table raffle per company. 
+Admin. Invoices.
+
+Add guest, inovice or guest paying cash.
+
+ Table raffle per company. Tables, seats, guestlist, seating priority. Guest are spread out evenly.
