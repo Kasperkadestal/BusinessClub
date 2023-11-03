@@ -1,4 +1,5 @@
 <script>
+  import Chat from "$lib/layout/chat.svelte";
   import DahboardTable from "$lib/layout/dahboardTable.svelte";
   import EventCarousel from "$lib/layout/eventCarousel.svelte";
   import MessageTable from "$lib/layout/messageTable.svelte";
@@ -17,7 +18,7 @@
   </div>
 {:else if $selectedPage == 1}
   <div class="w-11/12 mt-8 m-auto">
-    <MessageTable />
+    <Chat />
   </div>
 {:else}
   <div class="w-11/12 mt-8 m-auto">

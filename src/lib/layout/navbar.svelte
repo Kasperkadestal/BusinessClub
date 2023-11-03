@@ -32,7 +32,7 @@
       Peter Petersson
     </a>
 
-    <div class="card p-8 w-96 !left-[calc(100%-430px)]" data-popup="popupClick">
+    <div class="card p-8 w-96 !z-50 !left-[calc(100%-430px)]" data-popup="popupClick">
       <TabGroup>
         <Tab bind:group={tabSet} name="tab1" value={0}>
           <svelte:fragment slot="lead">

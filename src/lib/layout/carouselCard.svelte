@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
+  import { Avatar, RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
 
   let value: number = 2;
   export let counter: number;
@@ -87,24 +87,38 @@
       </div>
     </RadioItem>
   </RadioGroup>
-  <div class="py-6">
-    <div class="text-left ml-4">
+  <div class="pt-6">
+    <p class="opacity-50">
+      Dr. John Brown is hosting a virtual webinar series dedicated to educating
+      his audience.
+    </p>
+
+    <div class="text-left ml-4 pt-6 flex  justify-center mr-4">
+
+      <a
+        class="btn btn-sm variant-ghost-surface opacity-50 mb-4 mr-2"
+        href="https://github.com/skeletonlabs/skeleton"
+        target="_blank"
+        rel="noreferrer"
+      >
+      <Avatar initials="G" class="mr-2 -ml-1 h-full" width="w-6" background="bg-surface-700" />
+
+        Lägg till gäst...
+        
+      </a>
+
+      
       <a
         class="btn btn-sm variant-ghost-surface opacity-50 mb-4"
         href="https://github.com/skeletonlabs/skeleton"
         target="_blank"
         rel="noreferrer"
       >
-      Lägg till gäst...
+      <Avatar initials="I" class="mr-2 -ml-1 h-full" width="w-6" background="bg-surface-700" />
+
+        Välj inhoppare...
       </a>
     </div>
-
-
-
-    <p class="opacity-50">
-      Dr. John Brown is hosting a virtual webinar series dedicated to educating
-      his audience.
-    </p>
   </div>
   <div
     class="border-t border-surface-900 flex items-center justify-between px-6 h-16"
