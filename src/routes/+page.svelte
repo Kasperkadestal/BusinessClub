@@ -5,9 +5,6 @@
   import MessageTable from "$lib/layout/messageTable.svelte";
   import { selectedPage } from "$lib/layout/script";
 
-  selectedPage.subscribe((selected) => {
-    console.log(selected);
-  });
 </script>
 
 {#if $selectedPage == 0}

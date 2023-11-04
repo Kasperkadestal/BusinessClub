@@ -1,11 +1,32 @@
 <script lang="ts">
-  import { Avatar, RadioGroup, RadioItem } from "@skeletonlabs/skeleton";
+  import {
+    Avatar,
+    RadioGroup,
+    RadioItem,
+    popup,
+    type PopupSettings,
+  } from "@skeletonlabs/skeleton";
 
+  import { storedUsers } from "$lib/layout/script";
+
+  const popupClickI: PopupSettings = {
+    event: "click",
+    target: "popupClickI",
+    placement: "bottom-start",
+  };
+
+  const popupClickG: PopupSettings = {
+    event: "click",
+    target: "popupClickG",
+    placement: "bottom-start",
+  };
+
+  let valueG: number = 1;
   let value: number = 2;
   export let counter: number;
 </script>
 
-<div class="shrink-0 w-[28%] h-82 card snap-start text-center">
+<div class="shrink-0 w-[28%] h-82 !bg-surface-900 card snap-start text-center">
   <div class="flex px-6 bg-primary-800 items-center">
     <div class="h-12 w-full flex items-center justify-center">
       <p class="text-left">
@@ -88,36 +109,76 @@
     </RadioItem>
   </RadioGroup>
   <div class="pt-6">
-    <p class="opacity-50">
+    <p class="opacity-60">
       Dr. John Brown is hosting a virtual webinar series dedicated to educating
       his audience.
     </p>
 
-    <div class="text-left ml-4 pt-6 flex  justify-center mr-4">
-
+    <div class="text-left ml-4 pt-6 flex justify-center mr-4">
+      <!-- svelte-ignore a11y-missing-attribute -->
       <a
-        class="btn btn-sm variant-ghost-surface opacity-50 mb-4 mr-2"
-        href="https://github.com/skeletonlabs/skeleton"
-        target="_blank"
-        rel="noreferrer"
+        class="btn btn-sm variant-ghost-surface opacity-80 mb-4 mr-4"
+        use:popup={popupClickG}
       >
-      <Avatar initials="G" class="mr-2 -ml-1 h-full" width="w-6" background="bg-surface-700" />
+        <Avatar
+          initials="?"
+          class="mr-2 -ml-1 h-full"
+          width="w-6"
+          background="bg-surface-700"
+        />
 
         Lägg till gäst...
-        
       </a>
-
-      
+      <div class="card p-8" data-popup="popupClickG">
+        <label class="label text-sm mb-4">
+          <input
+            class="input !rounded"
+            type="text"
+            placeholder="Peter Petersson"
+          />
+        </label>
+        <div class="flex h-10 items-center mt-4">
+          <RadioGroup
+          display="flex"
+          active="variant-filled-primary"
+          hover="hover:variant-soft-primary"
+        >
+          <RadioItem bind:group={valueG} name="justify" value={1}
+            >Kontant</RadioItem
+          >
+          <RadioItem bind:group={valueG} name="justify" value={2}
+            >Faktura</RadioItem
+          >
+        </RadioGroup>
+        <button class="btn btn-md variant-ghost-primary rounded-sm h-full ml-4">
+          Lägg till
+        </button>
+        </div>
+      </div>
+      <!-- svelte-ignore a11y-missing-attribute -->
       <a
-        class="btn btn-sm variant-ghost-surface opacity-50 mb-4"
-        href="https://github.com/skeletonlabs/skeleton"
-        target="_blank"
-        rel="noreferrer"
+        class="btn btn-sm variant-ghost-surface opacity-80 mb-4"
+        use:popup={popupClickI}
       >
-      <Avatar initials="I" class="mr-2 -ml-1 h-full" width="w-6" background="bg-surface-700" />
+        <Avatar
+          initials="?"
+          class="mr-2 -ml-1 h-full"
+          width="w-6"
+          background="bg-surface-700"
+        />
 
         Välj inhoppare...
       </a>
+      <div class="card p-8" data-popup="popupClickI">
+        <select class="select">
+          {#each storedUsers as user, i}
+            <option value={i + 1}>{user.name}</option>
+          {/each}
+        </select>
+        <button class="btn btn-md variant-ghost-primary rounded-sm w-full mt-4">
+          Lägg till
+        </button>
+      </div>
     </div>
   </div>
   <div

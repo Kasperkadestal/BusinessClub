@@ -1,22 +1,8 @@
 <script lang="ts">
   import { faker } from "@faker-js/faker";
   import { Avatar } from "@skeletonlabs/skeleton";
-
-  // Function to generate fake users
-  function generateFakeUsers(count: number) {
-    const fakeUsers = [];
-    for (let i = 0; i < count; i++) {
-      fakeUsers.push({
-        userID: i, // Use unique values for userID
-        name: faker.person.fullName(),
-      });
-    }
-
-    console.log("Fake Users:");
-    console.log(fakeUsers);
-
-    return fakeUsers;
-  }
+  import { storedUsers } from "$lib/layout/script";
+  import { onMount, afterUpdate } from "svelte";
 
   // Function to generate fake messages for a conversation
   function generateFakeMessages(
@@ -39,8 +25,8 @@
     return fakeMessages;
   }
 
-  let newMessage: string = "";
-  let users: Array<{ userID: number; name: string }> = generateFakeUsers(5);
+  let currentMessage = "";
+  let users: Array<{ userID: number; name: string }> = storedUsers;
   let selectedUser: { userID: number; name: string } | null = null;
   let conversations: Array<{
     user: { userID: number; name: string };
@@ -53,7 +39,7 @@
   }> = [];
 
   // Generate 5 conversations
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < storedUsers.length; i++) {
     const fromUser = users[i].userID;
     const toUser = 99;
 
@@ -62,9 +48,6 @@
       messages: generateFakeMessages(10, fromUser, toUser),
     });
   }
-
-  console.log("conversations");
-  console.log(conversations);
 
   // Function to select a contact and load messages
   function selectContact(contact: { userID: number; name: string } | null) {
@@ -81,10 +64,25 @@
   }
 
   let selectedContactID: number | null = null;
+  let chatContainer: any;
+
+  function scrollToBottom() {
+    if (chatContainer) {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  }
+
+  onMount(() => {
+    scrollToBottom();
+  });
+
+  afterUpdate(() => {
+    scrollToBottom();
+  });
 </script>
 
-<div class="grid h-[80vh] grid-cols-6 gap-4">
-  <div class="w-full h-full col-span-2 overflow-scroll bg-black/[.25] p-2">
+<div class="grid h-[80vh] grid-cols-6 gap-4 mt-10">
+  <div class="w-full h-full col-span-2 overflow-y-scroll bg-black/[.25] p-2">
     <div class="w-full h-full">
       <aside>
         <button
@@ -98,9 +96,7 @@
             <li>
               <button
                 class="btn btn-md variant-ghost-surface w-full rounded-none mb-2
-             {selectedContactID === contact.userID
-                  ? '!bg-primary-800'
-                  : ''}"
+             {selectedContactID === contact.userID ? '!bg-primary-800' : ''}"
                 on:click={() => {
                   selectUser(contact.userID);
                   selectedContactID = contact.userID;
@@ -126,7 +122,8 @@
     </div>
   </div>
   <div
-    class="w-full col-span-4 w-full h-full overflow-scroll bg-black/[.25] p-2"
+    class="w-full col-span-4 w-full h-full overflow-y-scroll bg-black/[.25] p-2"
+    bind:this={chatContainer}
   >
     <div>
       <section>
@@ -143,7 +140,9 @@
                     class="p-4 space-y-2 {message.fromUserID === 99
                       ? 'rounded-tr-none'
                       : 'rounded-tl-none'} card
-        {message.fromUserID === 99 ? '!bg-surface-800' : '!bg-surface-600'} !max-w-[2/3]"
+        {message.fromUserID === 99
+                      ? '!bg-surface-800'
+                      : '!bg-surface-600'} !max-w-[2/3]"
                   >
                     <div class="flex items-center">
                       <p class="font-bold mr-4">
@@ -161,6 +160,20 @@
                   </div>
                 </div>
               {/each}
+              <div
+                class="input-group input-group-divider grid-cols-[auto_1fr_auto] rounded-container-token my-4"
+              >
+                <button class="input-group-shim">+</button>
+                <textarea
+                  bind:value={currentMessage}
+                  class="bg-transparent border-0 ring-0"
+                  name="prompt"
+                  id="prompt"
+                  placeholder="Write a message..."
+                  rows="1"
+                />
+                <button class="variant-filled-primary">Send</button>
+              </div>
             </div>
           {/if}
         {:else}

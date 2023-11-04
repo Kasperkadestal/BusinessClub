@@ -19,7 +19,7 @@ function multiColumnRight(): void {
 					
 </script>
 
-<div class="grid grid-cols-[auto_1fr_auto] w-11/12 m-auto gap-4 items-center mt-12">
+<div class="grid grid-cols-[auto_1fr_auto] w-11/12 m-auto gap-4 items-center mt-10">
   <!-- Button: Left -->
   <button
     type="button"

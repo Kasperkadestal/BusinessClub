@@ -14,7 +14,7 @@
     placement: "bottom",
   };
 
-  let tabSet: number = 0;
+  let tabSet = 0;
 </script>
 
 <AppBar class="!bg-primary-800">
@@ -22,7 +22,7 @@
     <strong class="text-xl uppercase">Bizz Club</strong>
   </svelte:fragment>
   <svelte:fragment slot="trail">
-    <a class="btn btn-sm variant-ghost-surface" use:popup={popupClick}>
+    <a class="btn btn-sm variant-ghost-surface cursor-pointer" use:popup={popupClick}>
       <Avatar
         class="mr-2 -ml-1"
         src="https://images.unsplash.com/photo-1617296538902-887900d9b592?ixid=M3w0Njc5ODF8MHwxfGFsbHx8fHx8fHx8fDE2ODc5NzExMDB8&ixlib=rb-4.0.3&w=128&h=128&auto=format&fit=crop"
@@ -32,7 +32,10 @@
       Peter Petersson
     </a>
 
-    <div class="card p-8 w-96 !z-50 !left-[calc(100%-430px)]" data-popup="popupClick">
+    <div
+      class="card p-8 w-96 !z-50 !left-[calc(100%-430px)]"
+      data-popup="popupClick"
+    >
       <TabGroup>
         <Tab bind:group={tabSet} name="tab1" value={0}>
           <svelte:fragment slot="lead">
@@ -76,8 +79,12 @@
         <svelte:fragment slot="panel">
           {#if tabSet === 0}
             <div>
-              <div>Antal gäster kvar: 5</div>
-              <button class="btn variant-filled-primary mt-8">Logga ut</button>
+              <div>
+                <small class="mb-2 opacity-50">Prenumeration giltig: 2024-01-01</small>
+              </div>
+              <div class="mt-6">Antal gäster kvar: 5</div>
+              <div class="py-2">Antal kontakter kvar: 3</div>
+              <button class="btn variant-filled-primary mt-6">Logga ut</button>
             </div>
           {:else if tabSet === 1}
             <div class="flex flex-col gap-4">
@@ -103,7 +110,11 @@
               </label>
               <label class="label text-sm">
                 <span>Hemsida</span>
-                <input class="input !rounded" type="text" placeholder="Jenka.com" />
+                <input
+                  class="input !rounded"
+                  type="text"
+                  placeholder="Jenka.com"
+                />
               </label>
               <label class="label text-sm">
                 <span>Tjänst</span>

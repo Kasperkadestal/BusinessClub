@@ -1,8 +1,6 @@
 <script lang="ts">
   import { AppRail, AppRailTile } from "@skeletonlabs/skeleton";
   import { selectedPage } from "./script";
-
-  let currentTile: number = 0;
 </script>
 
 <AppRail class="!bg-surface-900 border-r-2 border-surface-800">
@@ -46,7 +44,7 @@
       </div>
     </svelte:fragment>
   </AppRailTile>
-  <AppRailTile bind:group={$selectedPage} name="tile-3" value={2} title="tile-3">
+  <!-- <AppRailTile bind:group={$selectedPage} name="tile-3" value={2} title="tile-3">
     <svelte:fragment slot="lead">
       <div class="text-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block">
@@ -54,5 +52,5 @@
         </svg>      
       </div>
     </svelte:fragment>
-  </AppRailTile>
+  </AppRailTile> -->
 </AppRail>
