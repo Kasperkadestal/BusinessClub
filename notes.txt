@@ -4,6 +4,10 @@ Name, website, work, email, picture, work description.
 
 ::::::::::::::::::::::::::::::::::::::::::::::
 
+Name, company, pay or free guest.
+
+Sort contacts by.... company, name etc.
+
 Max 3 contacts per week. 
 
 Send to huvudperson or company.
