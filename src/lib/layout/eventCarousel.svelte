@@ -23,7 +23,7 @@ function multiColumnRight(): void {
   <!-- Button: Left -->
   <button
     type="button"
-    class="w-12 h-full variant-ghost text-center rounded"
+    class="w-12 h-full variant-ghost text-center rounded opacity-50"
     on:click={multiColumnLeft}
   >
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block">
@@ -42,7 +42,7 @@ function multiColumnRight(): void {
   <!-- Button-Right -->
   <button
     type="button"
-    class="w-12 h-full variant-ghost text-center rounded"
+    class="w-12 h-full variant-ghost text-center rounded opacity-50"
     on:click={multiColumnRight}
   >
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block">

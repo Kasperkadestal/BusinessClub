@@ -1,7 +1,7 @@
 <script lang="ts">
   import { faker } from "@faker-js/faker";
   import { Avatar } from "@skeletonlabs/skeleton";
-  import { storedUsers } from "$lib/layout/script";
+  import { storedUsers, selectedConversation } from "$lib/layout/script";
   import { onMount, afterUpdate } from "svelte";
 
   // Function to generate fake messages for a conversation
@@ -26,7 +26,11 @@
   }
 
   let currentMessage = "";
-  let users: Array<{ userID: number; name: string }> = storedUsers;
+  let users: Array<{ userID: number; name: string; company: string }> =
+    storedUsers.map((user) => ({
+      ...user,
+      company: faker.company.name(),
+    }));
   let selectedUser: { userID: number; name: string } | null = null;
   let conversations: Array<{
     user: { userID: number; name: string };
@@ -79,6 +83,22 @@
   afterUpdate(() => {
     scrollToBottom();
   });
+
+  selectedConversation.subscribe((user) => {
+    let id: number;
+    if (user.userID != null) {
+      id = user.userID;
+      selectUser(id);
+      selectedContactID = user.userID;
+    }
+  });
+
+  let sortCriteria: "name" | "company" = "name";
+
+  function sortBy(criteria: "name" | "company") {
+    sortCriteria = criteria;
+    users = [...users].sort((a, b) => (a[criteria] > b[criteria] ? 1 : -1));
+  }
 </script>
 
 <div class="grid h-[80vh] grid-cols-6 gap-4 mt-10">
@@ -86,32 +106,44 @@
     <div class="w-full h-full">
       <aside>
         <button
-          class="btn btn-md variant-ghost-primary mb-4 rounded-none w-full"
+          class="btn btn-md variant-ghost-primary mb-2 rounded-none w-full"
           on:click={() => selectContact(null)}
         >
           <p>New Contact</p>
         </button>
+        <div class="flex space-x-2 mb-2">
+          <button
+            class="btn btn-sm variant-ghost-tertiary rounded-none w-1/2"
+            on:click={() => sortBy("name")}
+          >
+            Sort by Name
+          </button>
+          <button
+            class="btn btn-sm variant-ghost-tertiary rounded-none w-1/2"
+            on:click={() => sortBy("company")}
+          >
+            Sort by Company
+          </button>
+        </div>
         <ul>
           {#each users as contact (contact.userID)}
             <li>
               <button
                 class="btn btn-md variant-ghost-surface w-full rounded-none mb-2
-             {selectedContactID === contact.userID ? '!bg-primary-800' : ''}"
-                on:click={() => {
-                  selectUser(contact.userID);
-                  selectedContactID = contact.userID;
-                }}
+              {selectedContactID === contact.userID ? '!bg-primary-800' : ''}"
+                on:click={() => selectUser(contact.userID)}
               >
                 <div class="grid grid-cols-5 w-full">
                   <div>
                     <Avatar
-                      src="https://images.unsplash.com/photo-1617296538902-887900d9b592?ixid=M3w0Njc5ODF8MHwxfGFsbHx8fHx8fHx8fDE2ODc5NzExMDB8&ixlib=rb-4.0.3&w=128&h=128&auto=format&fit=crop"
-                      width="w-6"
+                      src="https://www.shareicon.net/download/2016/07/05/791214_man_512x512.png"
+                      width="w-8 mt-2"
                       rounded="rounded-full"
                     />
                   </div>
-                  <div class="col-span-4 text-left">
-                    {contact.name}
+                  <div class="col-span-3 text-left">
+                    <p class="font-bold">{contact.name}</p>
+                    <p class="text-sm opacity-75">{contact.company}</p>
                   </div>
                 </div>
               </button>
@@ -147,7 +179,7 @@
                     <div class="flex items-center">
                       <p class="font-bold mr-4">
                         {message.fromUserID === 99
-                          ? "You"
+                          ? "Jag"
                           : users.find(
                               (user) => user.userID === message.fromUserID
                             )?.name}

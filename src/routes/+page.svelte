@@ -8,7 +8,7 @@
 	<div class="w-full container mx-auto p-6">
 			
 		<div class="w-full flex items-center justify-between">
-			<a class="flex items-center text-indigo-400 no-underline hover:no-underline font-bold text-2xl lg:text-4xl"  href="#"> 
+			<a class="flex items-center text-primary-700 no-underline hover:no-underline font-bold text-2xl lg:text-4xl"  href="#"> 
         BIZZ CLUB
 			</a>
 			
@@ -29,18 +29,18 @@
 	<div class="pt-24 md:pt-32 px-6 mx-auto flex flex-wrap flex-col md:flex-row items-center">
 		
 		<!--Left Col-->
-		<div class="flex flex-col xl:w-2/5 justify-center lg:items-start overflow-y-hidden">
-			<h1 class="my-4 text-3xl md:text-5xl text-purple-800 font-bold leading-tight text-center md:text-left slide-in-bottom-h1">Premium nätverket för framgång</h1>
-			<p class="leading-normal text-base md:text-2xl mb-8 text-center md:text-left slide-in-bottom-subtitle"> Ditt professionella nav för möten och företagsutveckling</p>
-      <button class="btn btn-lg variant-ghost-primary mb-2 w-48"><a target="_self" href="/user">Logga in</a></button>
-      <a class="opacity-30 cursor-pointer w-48 text-sm underline text-center">Medlem? Gå med i Bizz Club</a>
+		<div class="flex flex-col w-3/6 justify-center lg:items-start overflow-y-hidden">
+			<h1 class="my-4 text-3xl md:text-5xl text-tertiary-500 font-bold leading-tight text-center md:text-left slide-in-bottom-h1">Premium nätverket för framgång</h1>
+			<p class="leading-normal text-base md:text-lg opacity-70 mb-8 text-center md:text-left slide-in-bottom-subtitle"> Välkommen till Bizz Club - din plattform för professionella möten och företagsutveckling. Nätverka med framstående entreprenörer och ta ditt företagande till nya höjder genom veckans affärsmöten.</p>
+      <a class="btn btn-lg variant-ghost-primary mb-2 w-48" target="_self" href="/login">Logga in</a>
+      <a class="opacity-30 cursor-pointer w-48 text-sm underline text-center">Inte medlem? Gå med idag</a>
     </div>
 
 		
-		<!--Right Col-->
-		<div class="w-3/5 overflow-y-hidden">
-			
-		</div>
+		<!-- Right Col -->
+<div class="w-3/6 overflow-y-hidden">
+    <img src="src/lib/assets/Landing.svg" class="opacity-40 absolute top-0 right-12 h-4/5" alt="Landing Image">
+</div>
 		
 		<!--Footer-->
 		<div class="w-full pt-32 pb-6 text-sm text-center md:text-left fade-in">

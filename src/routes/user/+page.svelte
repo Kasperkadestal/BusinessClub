@@ -3,6 +3,7 @@
   import DahboardTable from "$lib/layout/dahboardTable.svelte";
   import EventCarousel from "$lib/layout/eventCarousel.svelte";
   import MessageTable from "$lib/layout/messageTable.svelte";
+  import News from "$lib/layout/news.svelte";
   import { selectedPage } from "$lib/layout/script";
 
 </script>
@@ -19,6 +20,6 @@
   </div>
 {:else}
   <div class="w-11/12 mt-8 m-auto">
-    <DahboardTable />
+    <News />
   </div>
 {/if}

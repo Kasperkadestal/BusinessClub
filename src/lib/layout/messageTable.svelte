@@ -1,5 +1,9 @@
 <script lang="ts">
-  import { storedUsers,selectedPage } from "$lib/layout/script";
+  import {
+    storedUsers,
+    selectedPage,
+    selectedConversation,
+  } from "$lib/layout/script";
   import { faker } from "@faker-js/faker/locale/af_ZA";
 
   // Define the number of items to display per page
@@ -13,6 +17,11 @@
   function changePage(newPage: any) {
     currentPage = newPage;
   }
+
+  function selectMessage(message: { userID: number; name: string }) {
+    selectedConversation.set(message);
+    selectedPage.set(1);
+  }
 </script>
 
 <div>
@@ -23,7 +32,7 @@
         <tr>
           <th class="w-1/5">Meddelanden</th>
           <th class="w-1/5 text-right">
-            <button on:click={() => $selectedPage = 1}>
+            <button on:click={() => ($selectedPage = 1)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -44,7 +53,10 @@
       </thead>
       <tbody>
         {#each storedUsers.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage) as row}
-          <tr class="opacity-70 cursor-pointer">
+          <tr
+            on:click={() => selectMessage(row)}
+            class="opacity-70 cursor-pointer"
+          >
             <td><b>{row.name}</b></td>
             <td class="text-right">{faker.date.recent().toLocaleString()}</td>
           </tr>
@@ -58,7 +70,7 @@
     {#if totalPages > 1}
       {#each Array.from({ length: totalPages }, (_, i) => i) as page}
         <a
-        class="btn btn-sm rounded-md variant-ghost-surface cursor-pointer opacity-30 mt-2 mr-2"
+          class="btn btn-sm rounded-md variant-ghost-surface cursor-pointer opacity-30 mt-2 mr-2"
           class:active={page === currentPage}
           on:click={() => changePage(page)}
         >

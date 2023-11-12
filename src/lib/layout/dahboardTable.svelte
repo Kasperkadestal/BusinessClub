@@ -2,6 +2,7 @@
   // Import necessary libraries
   import { supabase } from "$lib/supabaseClient";
   import { onMount } from "svelte";
+  import { selectedNews,selectedPage } from "./script";
 
   let sourceData: {
     news: Array<{ title: string; description: string; created_at: string }>;
@@ -31,6 +32,15 @@
   // Function to change the current page
   function changePage(newPage: any) {
     currentPage = newPage;
+  }
+
+  function selectNews(news: {
+    title: string;
+    description: string;
+    created_at: string;
+  }) {
+    selectedNews.set(news);
+    selectedPage.set(2);
   }
 </script>
 
@@ -64,7 +74,10 @@
       </thead>
       <tbody>
         {#each sourceData.news.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage) as row, i}
-          <tr class="opacity-70 cursor-pointer">
+          <tr
+            on:click={() => selectNews(row)}
+            class="opacity-70 cursor-pointer"
+          >
             <td><b>{row.title}</b></td>
             <td>{row.description}</td>
             <td class="text-right">{row.created_at}</td>

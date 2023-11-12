@@ -117,7 +117,7 @@
     <div class="text-left ml-4 pt-6 flex justify-center mr-4">
       <!-- svelte-ignore a11y-missing-attribute -->
       <a
-        class="btn btn-sm variant-ghost-surface opacity-80 mb-4 mr-4"
+        class="btn btn-sm variant-ghost-surface opacity-60 mb-4 mr-4"
         use:popup={popupClickG}
       >
         <Avatar
@@ -134,7 +134,14 @@
           <input
             class="input !rounded"
             type="text"
-            placeholder="Peter Petersson"
+            placeholder="Namn"
+          />
+        </label>
+        <label class="label text-sm mb-4">
+          <input
+            class="input !rounded"
+            type="text"
+            placeholder="Företag"
           />
         </label>
         <div class="flex h-10 items-center mt-4">
@@ -144,10 +151,10 @@
           hover="hover:variant-soft-primary"
         >
           <RadioItem bind:group={valueG} name="justify" value={1}
-            >Kontant</RadioItem
+            >Gratis (5 kvar)</RadioItem
           >
           <RadioItem bind:group={valueG} name="justify" value={2}
-            >Faktura</RadioItem
+            >Betala</RadioItem
           >
         </RadioGroup>
         <button class="btn btn-md variant-ghost-primary rounded-sm h-full ml-4">
@@ -157,7 +164,7 @@
       </div>
       <!-- svelte-ignore a11y-missing-attribute -->
       <a
-        class="btn btn-sm variant-ghost-surface opacity-80 mb-4"
+        class="btn btn-sm variant-ghost-surface opacity-60 mb-4"
         use:popup={popupClickI}
       >
         <Avatar

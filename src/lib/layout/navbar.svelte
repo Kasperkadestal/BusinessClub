@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import {
     AppBar,
     Avatar,
@@ -19,13 +20,13 @@
 
 <AppBar class="!bg-primary-800">
   <svelte:fragment slot="lead">
-    <strong class="text-xl uppercase">Bizz Club</strong>
+    <strong on:click={() => goto("/")} class="text-xl uppercase cursor-pointer">Bizz Club</strong>
   </svelte:fragment>
   <svelte:fragment slot="trail">
     <a class="btn btn-sm variant-ghost-surface cursor-pointer" use:popup={popupClick}>
       <Avatar
         class="mr-2 -ml-1"
-        src="https://images.unsplash.com/photo-1617296538902-887900d9b592?ixid=M3w0Njc5ODF8MHwxfGFsbHx8fHx8fHx8fDE2ODc5NzExMDB8&ixlib=rb-4.0.3&w=128&h=128&auto=format&fit=crop"
+        src="https://ihs-us.org/wp-content/uploads/2017/03/placeholder2.jpg"
         width="w-8"
         rounded="rounded-full"
       />
