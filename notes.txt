@@ -4,9 +4,15 @@ Name, website, work, email, picture, work description.
 
 ::::::::::::::::::::::::::::::::::::::::::::::
 
+Change individual tables, seats etc.
+
+Check-in list.
+
+Check-in verify remove checked-in guest.
+
 Name, company, pay or free guest.
 
-Sort contacts by.... company, name etc.
+Sort contacts by.... company, name, DATE.
 
 Max 3 contacts per week. 
 

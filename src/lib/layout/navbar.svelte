@@ -20,10 +20,15 @@
 
 <AppBar class="!bg-primary-800">
   <svelte:fragment slot="lead">
-    <strong on:click={() => goto("/")} class="text-xl uppercase cursor-pointer">Bizz Club</strong>
+    <strong on:click={() => goto("/")} class="text-xl uppercase cursor-pointer"
+      >Bizz Club</strong
+    >
   </svelte:fragment>
   <svelte:fragment slot="trail">
-    <a class="btn btn-sm variant-ghost-surface cursor-pointer" use:popup={popupClick}>
+    <a
+      class="btn btn-sm variant-ghost-surface cursor-pointer"
+      use:popup={popupClick}
+    >
       <Avatar
         class="mr-2 -ml-1"
         src="https://ihs-us.org/wp-content/uploads/2017/03/placeholder2.jpg"
@@ -76,12 +81,32 @@
             </svg>
           </div>
         </Tab>
+        <Tab bind:group={tabSet} name="tab3" value={2}>
+          <div class="text-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6 inline-block"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 019 9v.375M10.125 2.25A3.375 3.375 0 0113.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 013.375 3.375M9 15l2.25 2.25L15 12"
+              />
+            </svg>
+          </div>
+        </Tab>
         <!-- Tab Panels --->
         <svelte:fragment slot="panel">
           {#if tabSet === 0}
             <div>
               <div>
-                <small class="mb-2 opacity-50">Prenumeration giltig: 2024-01-01</small>
+                <small class="mb-2 opacity-50"
+                  >Prenumeration giltig: 2024-01-01</small
+                >
               </div>
               <div class="mt-6">Antal gäster kvar: 5</div>
               <div class="py-2">Antal kontakter kvar: 3</div>
@@ -135,6 +160,49 @@
                   placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit."
                 />
               </label>
+            </div>
+          {:else}
+            <div class="h-[50vh] overflow-y-scroll overflow-x-hidden">
+              <b>Business Club Medlemskapsavtal</b>
+              <p>
+                Detta avtal (härefter &quot;Avtal&quot;) ingås mellan
+                Trelleborgs Business Club (härefter &quot;Klubben&quot;) och
+                __________________________________________________________
+                (härefter &quot;Medlemmen&quot;) med avseende på medlemskap i
+                Business Club Trelleborg (härefter &quot;Business Club&quot;).
+                <br><br>
+                1. Medlemskapets Varaktighet Medlemskapet i Business Club gäller
+                från det datum då detta avtal undertecknas och fortsätter från
+                termin till termin. Varje termin omfattar en period enligt
+                följande: • Vårtermin: Januari till maj • Hösttermin: Augusti
+                till november 2. Medlemsförmåner Medlemskapet i Business Club
+                inkluderar följande förmåner: • Cirka 15 träffar per termin, som
+                äger rum varje tisdag i månaden kl. 11.55-13.00. •
+                Nätverksmöjligheter vid träffarna. • Lunch, vatten, kaffe/te och
+                kaka vid träffarna. • Möjlighet att ta med 2 gäster per termin
+                kostnadsfritt. Därefter debiteras en engångsavgift (betalas på
+                plats eller via faktura). • Medlemskapet meddelar priset per
+                månad för den kommande terminen senast 6 veckor före innehavande
+                termins slut. Fakturering sker i förväg. 3. Medlemmens Samtycke
+                Medlemmen samtycker till att dess kontaktuppgifter delas inom
+                Business Club Trelleborg med andra medlemmar som vill komma i
+                kontakt med Medlemmen. Samtycke ges även för att inkluderas i
+                Business Club Trelleborgs LinkedIn-grupp &quot;Business Club
+                Trelleborg.&quot; 4. Avslut av Medlemskap Medlemskapet i
+                Business Club förnyas automatiskt för en ny termin om det inte
+                sägs upp skriftligen av Medlemmen senast 1 månad innan
+                innehavande termin upphör. 5. Ansvar och Förpliktelser Både
+                Klubben och Medlemmen förbinder sig att uppfylla sina respektive
+                åtaganden enligt detta Avtal. 6. Ändringar i Avtalet Eventuella
+                ändringar eller tillägg till detta Avtal ska vara skriftliga och
+                undertecknas av båda parter. 7. Jurisdiktion Detta Avtal
+                regleras av och tolkas i enlighet med svensk lag. Undertecknat:
+                [Företagsnamn] [Adress] [Stad, Postnummer] Kontaktperson: [Ditt
+                Namn] Datum: [Datum] [Medlemsnamn] [Adress] [Stad, Postnummer]
+                Datum: [Datum] Genom att underteckna detta Avtal bekräftar både
+                Klubben och Medlemmen att de har läst, förstått och accepterat
+                villkoren i detta medlemskapsavtal för Business Club Trelleborg.
+              </p>
             </div>
           {/if}
         </svelte:fragment>
