@@ -9,6 +9,9 @@
     AccordionItem,
     ListBox,
     ListBoxItem,
+    getModalStore,
+    type ModalSettings,
+    Modal,
   } from "@skeletonlabs/skeleton";
   import { faker } from "@faker-js/faker/locale/af_ZA";
 
@@ -51,7 +54,6 @@
       seatings = data.map((seating) =>
         seating.participants.map((participant: any) => participant)
       );
-      console.log("Latest Seating:", seatings);
     }
   }
 
@@ -65,7 +67,6 @@
   function mapSeating(name: string) {
     const names: string[] = [];
     seatings.forEach((week) => {
-      console.log(week);
       if (week.some((obj) => obj.participant === name)) {
         const id = week.find((obj) => obj.participant === name)?.table;
         week.forEach((seat) => {
@@ -75,7 +76,6 @@
         });
       }
     });
-    console.log(names);
     seatMap.set(name, names);
   }
 
@@ -85,22 +85,29 @@
     let minTableId = 0;
     let minNumIncludedNames = Number.MAX_SAFE_INTEGER;
 
+    for (let i = 0; i < $raffleStore.length; i++) {
+      if ($raffleStore[i].seats > $raffleStore[i].participants.length) {
+        minTableId = i;
+        break;
+      }
+    }
+
     // Iterate through tables to find the one with the lowest number of included names
     $raffleStore.forEach((table, index) => {
-      const includedNames: string[] = seatMap.get(participant.name) || [];
-      let num = 0;
+      if (table.seats < table.participants.length) {
+        const includedNames: string[] = seatMap.get(participant.name) || [];
+        let num = 0;
 
-      table.participants.forEach((p) => {
-        if (includedNames.includes(p.name)) {
-          num++;
+        table.participants.forEach((p) => {
+          if (includedNames.includes(p.name)) {
+            num++;
+          }
+        });
+
+        if (num < minNumIncludedNames) {
+          minNumIncludedNames = num;
+          minTableId = index;
         }
-      });
-
-      console.log("NUM: " + num);
-
-      if (num < minNumIncludedNames) {
-        minNumIncludedNames = num;
-        minTableId = index;
       }
     });
     return {
@@ -108,7 +115,6 @@
       seatNumber: $raffleStore[minTableId].participants.length,
     };
   }
-
 
   let checkInText = "Tryck på en medlem för att tildela en bordplacering.";
 
@@ -125,13 +131,16 @@
     } else {
       // Your existing logic for checking in a participant
       const key = participantCheckIn.name + Date.now();
-      const participant: Participant = { name: participantCheckIn.name, key: key };
+      const participant: Participant = {
+        name: participantCheckIn.name,
+        key: key,
+      };
       const seatPlacement = checkInParticipant(participant);
-      checkInText = `${participantCheckIn.name}: Bord ${(seatPlacement.tableId+1)}`
+      checkInText = `${participantCheckIn.name}: Bord ${
+        seatPlacement.tableId + 1
+      }`;
       console.log(
-        `You are seated at Table ${seatPlacement.tableId}, Seat ${
-          seatPlacement.seatNumber
-        }`
+        `You are seated at Table ${seatPlacement.tableId}, Seat ${seatPlacement.seatNumber}`
       );
       // Optionally, you can display the assigned seat to the user in the UI
     }
@@ -139,7 +148,7 @@
 
   function updateTables() {
     $raffleStore = Array.from({ length: numTables }, (_, index) => ({
-      id: index+1,
+      id: index + 1,
       seats: seatsPerTable,
       participants: [],
     }));
@@ -178,32 +187,68 @@
   let selectedMembers: Participant[] = [];
 
   // Watch for changes in selectedUsers and trigger handleCheckIn when a new user is selected
-  let prevSelectedMembers : Participant[] = [];
+  let prevSelectedMembers: Participant[] = [];
+
+  const modalStore = getModalStore();
 
   $: {
-    const addedMembers = selectedMembers.filter(member => !prevSelectedMembers.includes(member));
-    const removedMembers = prevSelectedMembers.filter(member => !selectedMembers.includes(member));
+    const addedMembers = selectedMembers.filter(
+      (member) => !prevSelectedMembers.includes(member)
+    );
+
+    const removedMembers = prevSelectedMembers.filter(
+      (member) => !selectedMembers.includes(member)
+    );
+
+ 
 
     if (addedMembers.length > 0) {
       // Handle added members if needed
-      addedMembers.forEach(newUser => handleCheckIn(newUser));
-      console.log("ADD");
-      
+      addedMembers.forEach((newUser) => handleCheckIn(newUser));
     }
 
     if (removedMembers.length > 0) {
-      // Handle removed members and update raffleStore
-      removedMembers.forEach(removedUser => removeParticipant(removedUser));
-      console.log("REMOVE");
 
+      const name = removedMembers[0].name;      
+
+      new Promise<boolean>((resolve) => {
+        const modal: ModalSettings = {
+          type: "confirm",
+          title: "Bekräfta borttagning",
+          body: "Är du säker på att du vill ta bort " + {name}.name + "?",
+          buttonTextCancel: "Nej",
+          buttonTextConfirm: "Ja",
+          response: (r: boolean) => {
+            resolve(r);
+          },
+        };
+        modalStore.trigger(modal);
+      }).then((r: boolean) => {
+        if (r) {
+          removedMembers.forEach((r) => {
+            removeParticipant(r);
+          });
+          console.log("YES");
+        } else {
+          console.log("NO");
+          removedMembers.forEach((r) => {
+            selectedMembers.push(r);
+            selectedMembers = selectedMembers;
+            console.log(selectedMembers);
+            
+          });
+        }
+        modalStore.clear(); // Reset modal state
+      });
     }
-
     prevSelectedMembers = [...selectedMembers];
   }
 
   function removeParticipant(participant: Participant) {
-    $raffleStore.forEach(table => {
-      const index = table.participants.findIndex(p => p.name === participant.name);
+    $raffleStore.forEach((table) => {
+      const index = table.participants.findIndex(
+        (p) => p.name === participant.name
+      );
       if (index !== -1) {
         table.participants.splice(index, 1);
         raffleStore.set($raffleStore); // Update the store to trigger reactivity
@@ -212,6 +257,8 @@
     });
   }
 </script>
+
+<Modal />
 
 <main class="w-11/12 h-screen m-auto pt-12">
   <Accordion autocollapse>
