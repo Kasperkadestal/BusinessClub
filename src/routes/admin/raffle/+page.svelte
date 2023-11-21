@@ -14,6 +14,7 @@
     Modal,
   } from "@skeletonlabs/skeleton";
   import { faker } from "@faker-js/faker/locale/af_ZA";
+  import { fakerSV } from "@faker-js/faker";
 
   type Participant = {
     name: string;
@@ -176,14 +177,20 @@
 
   function generateMembers() {
     let generatedMembers: Participant[] = [];
-    for (let index = 0; index < 20; index++) {
-      generatedMembers.push({ name: faker.person.fullName() });
+    for (let index = 0; index < 60; index++) {
+      generatedMembers.push({ name: fakerSV.person.fullName() });
     }
 
     return generatedMembers;
   }
 
   let members: Participant[] = generateMembers();
+  sortMembersAlphabetically();
+
+  function sortMembersAlphabetically() {
+    members = [...members].sort((a, b) => a.name.localeCompare(b.name));
+  }
+
   let selectedMembers: Participant[] = [];
 
   // Watch for changes in selectedUsers and trigger handleCheckIn when a new user is selected
@@ -256,6 +263,25 @@
       }
     });
   }
+
+  function addTable() {
+    console.log("ADD");
+    
+    $raffleStore.push({
+      id: $raffleStore.length + 1,
+      seats: seatsPerTable,
+      participants: [],
+    });
+
+    raffleStore.set($raffleStore);
+  }
+
+  function removeTable() {
+    console.log("REMOVE");
+
+    $raffleStore.pop();
+    raffleStore.set($raffleStore);
+  }
 </script>
 
 <Modal />
@@ -300,7 +326,7 @@
               >
                 <p class="text-lg">
                   {member.name}
-                </p>
+                </p> <small class="opacity-50">{fakerSV.company.name()}</small>
               </ListBoxItem>
             {/each}
           </ListBox>
@@ -358,7 +384,15 @@
           {#each tableComponents as table (table.id)}
             <Table {table} />
           {/each}
-        </div>
+          <div class="flex items-center">
+            <a on:click={addTable}>
+              <button class="btn btn-md w-1/3 variant-ghost-surface">+</button>
+            </a>
+            <a on:click={removeTable}>
+              <button class="btn btn-md w-1/3 variant-ghost-surface">-</button>
+            </a>
+          </div>
+        </div> 
       </svelte:fragment>
     </AccordionItem>
     <AccordionItem>

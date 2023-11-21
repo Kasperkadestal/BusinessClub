@@ -109,20 +109,20 @@
           class="btn btn-md variant-ghost-primary mb-2 rounded-none w-full"
           on:click={() => selectContact(null)}
         >
-          <p>New Contact</p>
+          <p>Ny kontakt</p>
         </button>
         <div class="flex space-x-2 mb-2">
           <button
             class="btn btn-sm variant-ghost-tertiary rounded-none w-1/2"
             on:click={() => sortBy("name")}
           >
-            Sort by Name
+            Sortera efter namn
           </button>
           <button
             class="btn btn-sm variant-ghost-tertiary rounded-none w-1/2"
             on:click={() => sortBy("company")}
           >
-            Sort by Company
+          Sortera efter företag
           </button>
         </div>
         <ul>
@@ -201,17 +201,17 @@
                   class="bg-transparent border-0 ring-0"
                   name="prompt"
                   id="prompt"
-                  placeholder="Write a message..."
+                  placeholder="Skriv ett meddelande..."
                   rows="1"
                 />
-                <button class="variant-filled-primary">Send</button>
+                <button class="variant-filled-primary">Skicka</button>
               </div>
             </div>
           {/if}
         {:else}
           <div class="flex h-[75vh] justify-center items-center">
             <p class="text-center">
-              Select a contact or click "New Contact" to start a conversation.
+              Välj en kontakt eller klicka "Ny kotakt" för att påbörja en konversation.
             </p>
           </div>
         {/if}

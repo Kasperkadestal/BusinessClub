@@ -1,8 +1,7 @@
 
 Radio buttons, ja nej kanske. grön, gul, röd.
-Name, website, work, email, picture, work description.
 
-::::::::::::::::::::::::::::::::::::::::::::::
+Name, website, work, email, picture, work description.
 
 Change individual tables, seats etc.
 
@@ -10,9 +9,16 @@ Check-in list.
 
 Check-in verify remove checked-in guest.
 
-Name, company, pay or free guest.
-
 Sort contacts by.... company, name, DATE.
+
+Name, company, pay or free guest.
+Add guest, inovice or guest paying cash.
+
+ Table raffle per company. Tables, seats, guestlist, seating priority. Guest are spread out evenly. 
+
+::::::::::::::::::::::::::::::::::::::::::::::
+
+
 
 Max 3 contacts per week. 
 
@@ -22,8 +28,7 @@ Send message to business club.
 
 See invoices.
 
-Add guest, inovice or guest paying cash.
+
 
 Admin. Invoices.
 
- Table raffle per company. Tables, seats, guestlist, seating priority. Guest are spread out evenly.

@@ -5,6 +5,8 @@
     RadioItem,
     popup,
     type PopupSettings,
+    Accordion,
+    AccordionItem,
   } from "@skeletonlabs/skeleton";
 
   import { storedUsers } from "$lib/layout/script";
@@ -26,7 +28,7 @@
   export let counter: number;
 </script>
 
-<div class="shrink-0 w-[28%] h-82 !bg-surface-900 card snap-start text-center">
+<div class="shrink-0 w-[28%] h-fit !bg-surface-900 card snap-start text-center">
   <div class="flex px-6 bg-primary-800 items-center">
     <div class="h-12 w-full flex items-center justify-center">
       <p class="text-left">
@@ -108,88 +110,61 @@
       </div>
     </RadioItem>
   </RadioGroup>
-  <div class="pt-6">
-    <p class="opacity-60">
-      Dr. John Brown is hosting a virtual webinar series dedicated to educating
-      his audience.
-    </p>
+  <div>
+    <div class="opacity-60">
+      <Accordion>
+        <AccordionItem padding="px-6 py-3">
+          <svelte:fragment slot="summary">Information</svelte:fragment>
 
-    <div class="text-left ml-4 pt-6 flex justify-center mr-4">
-      <!-- svelte-ignore a11y-missing-attribute -->
-      <a
-        class="btn btn-sm variant-ghost-surface opacity-60 mb-4 mr-4"
-        use:popup={popupClickG}
-      >
-        <Avatar
-          initials="?"
-          class="mr-2 -ml-1 h-full"
-          width="w-6"
-          background="bg-surface-700"
-        />
-
-        Lägg till gäst...
-      </a>
-      <div class="card p-8" data-popup="popupClickG">
-        <label class="label text-sm mb-4">
-          <input
-            class="input !rounded"
-            type="text"
-            placeholder="Namn"
-          />
-        </label>
-        <label class="label text-sm mb-4">
-          <input
-            class="input !rounded"
-            type="text"
-            placeholder="Företag"
-          />
-        </label>
-        <div class="flex h-10 items-center mt-4">
-          <RadioGroup
-          display="flex"
-          active="variant-filled-primary"
-          hover="hover:variant-soft-primary"
-        >
-          <RadioItem bind:group={valueG} name="justify" value={1}
-            >Gratis (5 kvar)</RadioItem
+          <svelte:fragment slot="content">
+            <p>
+              Dr. John Brown is hosting a virtual webinar series dedicated to
+              education.
+            </p></svelte:fragment
           >
-          <RadioItem bind:group={valueG} name="justify" value={2}
-            >Betala</RadioItem
-          >
-        </RadioGroup>
-        <button class="btn btn-md variant-ghost-primary rounded-sm h-full ml-4">
-          Lägg till
-        </button>
-        </div>
-      </div>
-      <!-- svelte-ignore a11y-missing-attribute -->
-      <a
-        class="btn btn-sm variant-ghost-surface opacity-60 mb-4"
-        use:popup={popupClickI}
-      >
-        <Avatar
-          initials="?"
-          class="mr-2 -ml-1 h-full"
-          width="w-6"
-          background="bg-surface-700"
-        />
+        </AccordionItem>
+        <AccordionItem padding="px-6 py-3">
+          <svelte:fragment slot="summary">Extra</svelte:fragment>
 
-        Välj inhoppare...
-      </a>
-      <div class="card p-8" data-popup="popupClickI">
-        <select class="select">
-          {#each storedUsers as user, i}
-            <option value={i + 1}>{user.name}</option>
-          {/each}
-        </select>
-        <button class="btn btn-md variant-ghost-primary rounded-sm w-full mt-4">
-          Lägg till
-        </button>
-      </div>
+          <svelte:fragment slot="content">
+            <div class="text-left ml-4 flex justify-center mr-4">
+              <!-- svelte-ignore a11y-missing-attribute -->
+              <a
+                class="btn btn-sm variant-ghost-surface opacity-60 mr-4 cursor-pointer"
+                use:popup={popupClickG}
+              >
+                <Avatar
+                  initials="?"
+                  class="mr-2 -ml-1 h-full"
+                  width="w-6"
+                  background="bg-surface-700"
+                />
+
+                Lägg till gäst...
+              </a>
+              
+              <!-- svelte-ignore a11y-missing-attribute -->
+              <a
+                class="btn btn-sm variant-ghost-surface opacity-60 cursor-pointer"
+                use:popup={popupClickI}
+              >
+                <Avatar
+                  initials="?"
+                  class="mr-2 -ml-1 h-full"
+                  width="w-6"
+                  background="bg-surface-700"
+                />
+
+                Välj inhoppare...
+              </a>
+            </div>
+          </svelte:fragment>
+        </AccordionItem>
+      </Accordion>
     </div>
   </div>
   <div
-    class="border-t border-surface-900 flex items-center justify-between px-6 h-16"
+    class="border-t border-surface-900 flex items-center justify-between px-6 pb-4 pt-4"
   >
     <p class="text-primary-500 flex items-center h-full">
       <svg
@@ -226,4 +201,54 @@
       13
     </p>
   </div>
+</div>
+
+<div class="card p-8" data-popup="popupClickG">
+  <label class="label text-sm mb-4">
+    <input
+      class="input !rounded"
+      type="text"
+      placeholder="Namn"
+    />
+  </label>
+  <label class="label text-sm mb-4">
+    <input
+      class="input !rounded"
+      type="text"
+      placeholder="Företag"
+    />
+  </label>
+  <div class="flex h-10 items-center mt-4">
+    <RadioGroup
+      display="flex"
+      active="variant-filled-primary"
+      hover="hover:variant-soft-primary"
+    >
+      <RadioItem bind:group={valueG} name="justify" value={1}
+        >Gratis (5 kvar)</RadioItem
+      >
+      <RadioItem bind:group={valueG} name="justify" value={2}
+        >Betala</RadioItem
+      >
+    </RadioGroup>
+    <button
+      class="btn btn-md variant-ghost-primary rounded-sm h-full ml-4"
+    >
+      Lägg till
+    </button>
+  </div>
+  
+</div>
+
+<div class="card p-8" data-popup="popupClickI">
+  <select class="select">
+    {#each storedUsers as user, i}
+      <option value={i + 1}>{user.name}</option>
+    {/each}
+  </select>
+  <button
+    class="btn btn-md variant-ghost-primary rounded-sm w-full mt-4"
+  >
+    Lägg till
+  </button>
 </div>

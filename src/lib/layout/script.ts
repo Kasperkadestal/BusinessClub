@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import { faker } from "@faker-js/faker";
+import { fakerSV } from "@faker-js/faker";
 
 // Function to generate fake users
 function generateFakeUsers(count: number) {
@@ -7,7 +7,7 @@ function generateFakeUsers(count: number) {
   for (let i = 0; i < count; i++) {
     fakeUsers.push({
       userID: i, // Use unique values for userID
-      name: faker.person.fullName(),
+      name: fakerSV.person.fullName(),
     });
   }
 
