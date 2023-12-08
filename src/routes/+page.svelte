@@ -39,7 +39,7 @@
 		
 		<!-- Right Col -->
 <div class="w-3/6 overflow-y-hidden">
-    <img src="src/lib/assets/Landing.svg" class="opacity-40 absolute top-0 right-12 h-4/5" alt="Landing Image">
+    <img src="../../Landing.svg" class="opacity-40 absolute top-0 right-12 h-4/5" alt="Landing Image">
 </div>
 		
 		<!--Footer-->
