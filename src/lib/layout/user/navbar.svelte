@@ -9,6 +9,8 @@
     Tab,
   } from "@skeletonlabs/skeleton";
 
+  import { name,logout } from "$lib/layout/user";
+
   const popupClick: PopupSettings = {
     event: "click",
     target: "popupClick",
@@ -35,7 +37,7 @@
         width="w-8"
         rounded="rounded-full"
       />
-      Peter Petersson
+      {$name}
     </a>
 
     <div
@@ -110,7 +112,7 @@
               </div>
               <div class="mt-6">Antal gäster kvar: 5</div>
               <div class="py-2">Antal kontakter kvar: 3</div>
-              <button class="btn variant-filled-primary mt-6">Logga ut</button>
+              <button on:click={logout} class="btn variant-filled-primary mt-6">Logga ut</button>
             </div>
           {:else if tabSet === 1}
             <div class="flex flex-col gap-4">

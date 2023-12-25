@@ -3,7 +3,7 @@
   import { supabase } from "$lib/supabaseClient";
   import { faker } from "@faker-js/faker/locale/af_ZA";
   import { onMount } from "svelte";
-  import { selectedNews } from "$lib/layout/script";
+  import { selectedNews } from "$lib/layout/user/script";
 
   let selectedNewsTitle = "";
   let selectedNewsDescription = "";

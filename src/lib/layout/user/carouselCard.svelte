@@ -9,7 +9,26 @@
     AccordionItem,
   } from "@skeletonlabs/skeleton";
 
-  import { storedUsers } from "$lib/layout/script";
+  import { supabase } from "$lib/supabaseClient";
+  import { session } from "../user";
+
+  let valueG: number = 1;
+  let value: number = 2;
+
+  let newGuestInfo: { name: string; company: string };
+  newGuestInfo = { name: "", company: "" };
+
+  export let counter: number;
+  export let eventInfo: { title: string; text: string; date: any; id: string };
+  export let guestInfo: { name: string } | null;
+
+  function generatePopupSettings(target: string): PopupSettings {
+    return {
+      event: "click",
+      target,
+      placement: "bottom-start",
+    };
+  }
 
   const popupClickI: PopupSettings = {
     event: "click",
@@ -17,22 +36,44 @@
     placement: "bottom-start",
   };
 
-  const popupClickG: PopupSettings = {
-    event: "click",
-    target: "popupClickG",
-    placement: "bottom-start",
-  };
+  let popupClickG: PopupSettings;
+  popupClickG = generatePopupSettings(("popupClickG"+counter));
 
-  let valueG: number = 1;
-  let value: number = 2;
-  export let counter: number;
+  function addGuest() {
+    // Check if newGuestInfo has been filled with the necessary information
+    if (newGuestInfo && newGuestInfo.name && newGuestInfo.company) {
+      // Use supabase client to add the new guest to the database
+      supabase
+        .from("guest")
+        .upsert([
+          {
+            uid: $session.id,
+            eid: eventInfo.id, // Assuming you have the eventInfo available
+            name: newGuestInfo.name,
+            company: newGuestInfo.company,
+          },
+        ])
+        .then(({ data, error }) => {
+          if (error) {
+            console.error("Error adding guest:", error.message);
+          } else {
+            // Set guestInfo to the newly added guest
+            guestInfo = {name: newGuestInfo.name};
+            // Reset newGuestInfo
+            newGuestInfo = { name: "", company: "" };
+          }
+        });
+    } else {
+      console.error("Incomplete guest information");
+    }
+  }
 </script>
 
 <div class="shrink-0 w-[28%] h-fit !bg-surface-900 card snap-start text-center">
   <div class="flex px-6 bg-primary-800 items-center">
     <div class="h-12 w-full flex items-center justify-center">
       <p class="text-left">
-        <b>Vecka {counter + 1} </b>
+        <b>{eventInfo.title}</b>
       </p>
     </div>
   </div>
@@ -118,8 +159,7 @@
 
           <svelte:fragment slot="content">
             <p>
-              Dr. John Brown is hosting a virtual webinar series dedicated to
-              education.
+              {eventInfo.text}
             </p></svelte:fragment
           >
         </AccordionItem>
@@ -128,23 +168,37 @@
 
           <svelte:fragment slot="content">
             <div class="text-left ml-4 flex justify-center mr-4">
-              <!-- svelte-ignore a11y-missing-attribute -->
-              <a
-                class="btn btn-sm variant-ghost-surface opacity-60 mr-4 cursor-pointer"
-                use:popup={popupClickG}
-              >
-                <Avatar
-                  initials="?"
-                  class="mr-2 -ml-1 h-full"
-                  width="w-6"
-                  background="bg-surface-700"
-                />
+              {#if guestInfo === null}
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <a
+                  class="btn btn-sm variant-ghost-surface opacity-60 mr-4 cursor-pointer"
+                  use:popup={popupClickG}
+                >
+                  <Avatar
+                    initials="G"
+                    class="mr-2 -ml-1 h-full"
+                    width="w-6"
+                    background="bg-surface-700"
+                  />
+                  Lägg till gäst...
+                </a>
+              {/if}
 
-                Lägg till gäst...
-              </a>
-              
+              {#if guestInfo !== null}
+                <div class="flex items-center btn btn-sm variant-ghost-surface opacity-60 mr-4">
+                  <Avatar
+                    initials="G"
+                    class="-ml-1"
+                    width="w-6"
+                    height="w-6"
+                    background="bg-surface-700"
+                  />
+                  <span class="text-white ml-2">{guestInfo.name}</span>
+                </div>
+              {/if}
+
               <!-- svelte-ignore a11y-missing-attribute -->
-              <a
+              <!-- <a
                 class="btn btn-sm variant-ghost-surface opacity-60 cursor-pointer"
                 use:popup={popupClickI}
               >
@@ -157,6 +211,7 @@
 
                 Välj inhoppare...
               </a>
+              -->
             </div>
           </svelte:fragment>
         </AccordionItem>
@@ -181,7 +236,7 @@
           d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
         />
       </svg>
-      2023-0{((counter + 1) % 9) + 1}-1{(counter + 1) % 9} 12:00
+      {eventInfo.date}
     </p>
     <p class="text-primary-500 flex items-center h-full">
       <svg
@@ -203,9 +258,10 @@
   </div>
 </div>
 
-<div class="card p-8" data-popup="popupClickG">
+<div class="card p-8" data-popup="popupClickG{counter}">
   <label class="label text-sm mb-4">
     <input
+      bind:value={newGuestInfo.name}
       class="input !rounded"
       type="text"
       placeholder="Namn"
@@ -213,6 +269,7 @@
   </label>
   <label class="label text-sm mb-4">
     <input
+      bind:value={newGuestInfo.company}
       class="input !rounded"
       type="text"
       placeholder="Företag"
@@ -227,28 +284,26 @@
       <RadioItem bind:group={valueG} name="justify" value={1}
         >Gratis (5 kvar)</RadioItem
       >
-      <RadioItem bind:group={valueG} name="justify" value={2}
-        >Betala</RadioItem
-      >
+      <RadioItem bind:group={valueG} name="justify" value={2}>Betala</RadioItem>
     </RadioGroup>
     <button
       class="btn btn-md variant-ghost-primary rounded-sm h-full ml-4"
+      on:click={addGuest}
     >
       Lägg till
     </button>
   </div>
-  
 </div>
 
-<div class="card p-8" data-popup="popupClickI">
+<!--
+  <div class="card p-8" data-popup="popupClickI">
   <select class="select">
     {#each storedUsers as user, i}
       <option value={i + 1}>{user.name}</option>
     {/each}
   </select>
-  <button
-    class="btn btn-md variant-ghost-primary rounded-sm w-full mt-4"
-  >
+  <button class="btn btn-md variant-ghost-primary rounded-sm w-full mt-4">
     Lägg till
   </button>
 </div>
+-->

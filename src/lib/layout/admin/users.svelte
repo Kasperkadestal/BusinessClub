@@ -1,29 +1,15 @@
 <script lang="ts">
   import { fakerSV } from "@faker-js/faker";
   import { ListBox, ListBoxItem } from "@skeletonlabs/skeleton";
+  import { users } from "../user";
 
-  type Participant = {
-    name: string;
-    key?: string;
-    // Add more participant details as needed
-  };
+  let selectedMembers: any[] = [];
+  let members = $users;
 
-  let selectedMembers: Participant[] = [];
-
-  let members: Participant[] = generateMembers();
   sortMembersAlphabetically();
 
   function sortMembersAlphabetically() {
     members = [...members].sort((a, b) => a.name.localeCompare(b.name));
-  }
-
-  function generateMembers() {
-    let generatedMembers: Participant[] = [];
-    for (let index = 0; index < 60; index++) {
-      generatedMembers.push({ name: fakerSV.person.fullName() });
-    }
-
-    return generatedMembers;
   }
 </script>
 
@@ -71,30 +57,36 @@
     />
   </svg>
   <div class="">
-    {#if selectedMembers.length < 1}{:else if selectedMembers.length == 1}
-      1 markering
-    {:else}
-      {selectedMembers.length} markeringar
+    {#if selectedMembers}
+      {#if selectedMembers.length == 1}
+        1 markering
+      {:else}
+        {selectedMembers.length} markeringar
+      {/if}
     {/if}
   </div>
 </div>
 <div class="overflow-scroll overflow-x-hidden h-[70vh] card p-8">
+  {#if $users && selectedMembers}
   <ListBox multiple>
-    {#each members as member, index}
-      <ListBoxItem
-        bind:group={selectedMembers}
-        name="medium"
-        active="variant-ghost-primary"
-        padding="p-4"
-        rounded="none"
-        value={member}
-        class={index % 2 === 0 ? "" : "bg-tertiary-800/10"}
-      >
-        <p class="text-lg">
-          {member.name}
-        </p>
-        <small class="opacity-50">{fakerSV.company.name()}</small>
-      </ListBoxItem>
-    {/each}
+      {#if members.length > 0}
+        {#each members as member, index}
+          <ListBoxItem
+            bind:group={selectedMembers}
+            name="medium"
+            active="variant-ghost-primary"
+            padding="p-4"
+            rounded="none"
+            value={member}
+            class={index % 2 === 0 ? "" : "bg-tertiary-800/10"}
+          >
+            <p class="text-lg">
+              {member.first_name}  {member.last_name}
+            </p>
+            <small class="opacity-50">{member.company}</small>
+          </ListBoxItem>
+        {/each}
+      {/if}
   </ListBox>
+  {/if}
 </div>

@@ -1,25 +1,40 @@
 <script lang="ts">
-  import {
-    storedUsers,
-    selectedPage,
-    selectedConversation,
-  } from "$lib/layout/admin/script";
-  import { faker } from "@faker-js/faker/locale/af_ZA";
+  import { selectedPage, selectedConversation } from "$lib/layout/admin/script";
   import { Accordion, AccordionItem } from "@skeletonlabs/skeleton";
+  import { conversations, users, session } from "../user";
 
   // Define the number of items to display per page
   const itemsPerPage = 4;
   let currentPage = 0;
 
+  let totalPages = 1;
+
   // Calculate the total number of pages
-  $: totalPages = Math.ceil(storedUsers.length / itemsPerPage);
+  $: if ($conversations) {
+    totalPages = Math.ceil($conversations.length / itemsPerPage);
+  }
+
+  function getNameFromID(userRow: { user1_id: string; user2_id: string }) {
+    let found;
+    console.log(userRow);
+
+    if ($session.id != userRow.user1_id) {
+      found = $users.find((user) => user.id === userRow.user1_id);
+    } else {
+      found = $users.find((user) => user.id === userRow.user2_id);
+    }
+
+    return found.first_name + " " + found.last_name;
+  }
 
   // Function to change the current page
   function changePage(newPage: any) {
     currentPage = newPage;
   }
 
-  function selectMessage(message: { userID: number; name: string }) {
+  function selectMessage(message: { id: string; name: string }) {
+    console.log("MESSAGEs: ", message);
+
     selectedConversation.set(message);
     selectedPage.set(1);
   }
@@ -28,7 +43,7 @@
 <div class="table-container card !bg-surface-800/50 h-fit">
   <!-- Native Table Element -->
   <Accordion>
-    <AccordionItem padding="px-4 py-4">
+    <AccordionItem open padding="px-4 py-4">
       <svelte:fragment slot="lead"
         ><svg
           xmlns="http://www.w3.org/2000/svg"
@@ -49,17 +64,19 @@
       <svelte:fragment slot="content">
         <table class="table table-hover">
           <tbody>
-            {#each storedUsers.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage) as row}
-              <tr
-                on:click={() => selectMessage(row)}
-                class="opacity-70 cursor-pointer"
-              >
-                <td><b>{row.name}</b></td>
-                <td class="text-right"
-                  >{faker.date.recent().toLocaleString()}</td
-                >
-              </tr>
-            {/each}
+            {#if $users}
+              {#if $users.length > 0}
+                {#each $conversations.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage) as row}
+                  <tr
+                    on:click={() => selectMessage(row)}
+                    class="opacity-70 cursor-pointer"
+                  >
+                    <td><b>{getNameFromID(row)}</b></td>
+                    <td class="text-right">{row.created_at}</td>
+                  </tr>
+                {/each}
+              {/if}
+            {/if}
           </tbody>
         </table>
         <!-- Pagination Controls -->

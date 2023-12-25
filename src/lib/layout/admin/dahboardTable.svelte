@@ -46,7 +46,7 @@
 <div class="table-container card !bg-surface-800/50 h-fit">
   <!-- Native Table Element -->
   <Accordion>
-    <AccordionItem padding="px-4 py-4">
+    <AccordionItem open padding="px-4 py-4">
       <svelte:fragment slot="lead"
         ><svg
           xmlns="http://www.w3.org/2000/svg"

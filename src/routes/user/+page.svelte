@@ -1,10 +1,10 @@
 <script>
-  import Chat from "$lib/layout/chat.svelte";
-  import DahboardTable from "$lib/layout/dahboardTable.svelte";
-  import EventCarousel from "$lib/layout/eventCarousel.svelte";
-  import MessageTable from "$lib/layout/messageTable.svelte";
-  import News from "$lib/layout/news.svelte";
-  import { selectedPage } from "$lib/layout/script";
+  import Chat from "$lib/layout/user/chat.svelte";
+  import DahboardTable from "$lib/layout/user/dahboardTable.svelte";
+  import EventCarousel from "$lib/layout/user/eventCarousel.svelte";
+  import MessageTable from "$lib/layout/user/messageTable.svelte";
+  import News from "$lib/layout/user/news.svelte";
+  import { selectedPage } from "$lib/layout/user/script";
 
 </script>
 

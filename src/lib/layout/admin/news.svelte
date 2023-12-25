@@ -2,7 +2,7 @@
   // Import necessary libraries
   import { supabase } from "$lib/supabaseClient";
   import { onMount } from "svelte";
-  import { selectedNews } from "$lib/layout/script";
+  import { selectedNews } from "$lib/layout/admin/script";
 
   let selectedNewsTitle = "";
   let selectedNewsDescription = "";

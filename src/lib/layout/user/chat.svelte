@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Avatar } from "@skeletonlabs/skeleton";
-  import { selectedConversation } from "$lib/layout/admin/script";
+  import { selectedConversation } from "$lib/layout/user/script";
   import { onMount, afterUpdate } from "svelte";
   import { supabase } from "$lib/supabaseClient";
   import { session, conversations, users } from "$lib/layout/user";

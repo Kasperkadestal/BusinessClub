@@ -1,47 +1,42 @@
 <script lang="ts">
-  // Import necessary libraries
-  import { supabase } from "$lib/supabaseClient";
-  import { onMount } from "svelte";
-  import { selectedNews, selectedPage } from "./script";
+  import {
+    selectedPage,
+    selectedConversation,
+  } from "$lib/layout/user/script";
   import { Accordion, AccordionItem } from "@skeletonlabs/skeleton";
-
-  let sourceData: {
-    news: Array<{ title: string; description: string; created_at: string }>;
-  } = {
-    news: [],
-  };
-
-  onMount(async () => {
-    const { data, error } = await supabase.from("news").select();
-
-    console.log(data);
-
-    if (error) {
-      console.error("Error fetching data:", error);
-    } else {
-      sourceData.news = data ?? [];
-    }
-  });
-
+  import { conversations, users, session } from "../user";
+  
   // Define the number of items to display per page
   const itemsPerPage = 4;
   let currentPage = 0;
 
+  let totalPages = 1;
+
   // Calculate the total number of pages
-  $: totalPages = Math.ceil(sourceData.news.length / itemsPerPage);
+  $: if ($conversations) {
+     totalPages = Math.ceil($conversations.length / itemsPerPage);
+  }
+
+  function getNameFromID(userRow:{user1_id: string, user2_id: string}) {
+    let found;
+    if ($session.id != userRow.user1_id) {
+      found = $users.find((user) => user.id === userRow.user1_id)
+    } else {
+      found = $users.find((user) => user.id === userRow.user2_id)
+    }
+    return found.first_name + " " + found.last_name;
+  }
 
   // Function to change the current page
   function changePage(newPage: any) {
     currentPage = newPage;
   }
 
-  function selectNews(news: {
-    title: string;
-    description: string;
-    created_at: string;
-  }) {
-    selectedNews.set(news);
-    selectedPage.set(2);
+  function selectMessage(message: { id: string; name: string }) {
+    console.log("MESSAGEs: ", message);
+    
+    selectedConversation.set(message);
+    selectedPage.set(1);
   }
 </script>
 
@@ -61,22 +56,23 @@
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
-            d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+            d="M9 3.75H6.912a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859M12 3v8.25m0 0l-3-3m3 3l3-3"
           />
         </svg>
       </svelte:fragment>
-      <svelte:fragment slot="summary">Nyheter</svelte:fragment>
+      <svelte:fragment slot="summary">Meddelanden</svelte:fragment>
       <svelte:fragment slot="content">
         <table class="table table-hover">
           <tbody>
-            {#each sourceData.news.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage) as row, i}
+            {#each $conversations.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage) as row}
               <tr
-                on:click={() => selectNews(row)}
+                on:click={() => selectMessage(row)}
                 class="opacity-70 cursor-pointer"
               >
-                <td><b>{row.title}</b></td>
-                <td>{row.description}</td>
-                <td class="text-right">{row.created_at}</td>
+                <td><b>{getNameFromID(row)}</b></td>
+                <td class="text-right"
+                  >{row.created_at}</td
+                >
               </tr>
             {/each}
           </tbody>
