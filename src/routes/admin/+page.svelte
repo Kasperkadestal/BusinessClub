@@ -22,7 +22,7 @@
     </div>
   {:else if $selectedPage == 2}
     <div class="w-11/12 mt-8 m-auto">
-      <Accordion autocollapse>
+      <Accordion padding="px-0 py-2" autocollapse>
         <AccordionItem open>
           <svelte:fragment slot="lead">
             <svg

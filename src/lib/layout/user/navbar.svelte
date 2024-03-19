@@ -9,7 +9,9 @@
     Tab,
   } from "@skeletonlabs/skeleton";
 
-  import { name,logout } from "$lib/layout/user";
+  import { name, logout, session } from "$lib/layout/user";
+  import { supabase } from "$lib/supabaseClient";
+  import { onMount } from "svelte";
 
   const popupClick: PopupSettings = {
     event: "click",
@@ -18,6 +20,35 @@
   };
 
   let tabSet = 0;
+  let user = {
+    first_name: "",
+    last_name: "",
+    company: "",
+    website: "",
+    about: "",
+    field: "",
+  };
+
+  async function updateUserInformation() {
+    // Update user information in Supabase
+    const { error } = await supabase
+      .from("profile")
+      .update({
+        first_name: user.first_name,
+        last_name: user.last_name,
+        company: user.company,
+        website: user.website,
+        about: user.about,
+        field: user.field,
+      })
+      .eq("id", $session.id);
+
+    if (error) {
+      console.error("Error updating user information:", error.message);
+    }
+  }
+
+ $: user = $session;
 </script>
 
 <AppBar class="!bg-primary-800">
@@ -112,7 +143,9 @@
               </div>
               <div class="mt-6">Antal gäster kvar: 5</div>
               <div class="py-2">Antal kontakter kvar: 3</div>
-              <button on:click={logout} class="btn variant-filled-primary mt-6">Logga ut</button>
+              <button on:click={logout} class="btn variant-filled-primary mt-6"
+                >Logga ut</button
+              >
             </div>
           {:else if tabSet === 1}
             <div class="flex flex-col gap-4">
@@ -121,32 +154,36 @@
                 <input
                   class="input !rounded"
                   type="text"
-                  placeholder="Peter Petersson"
+                  bind:value={user.first_name}
                 />
               </label>
               <label class="label text-sm">
-                <span>Email</span>
+                <span>Efternamn</span>
                 <input
                   class="input !rounded"
                   type="text"
-                  placeholder="Peter.petersson@jenka.com"
+                  bind:value={user.last_name}
                 />
               </label>
               <label class="label text-sm">
                 <span>Företag</span>
-                <input class="input !rounded" type="text" placeholder="Jenka" />
+                <input
+                  class="input !rounded"
+                  type="text"
+                  bind:value={user.company}
+                />
               </label>
               <label class="label text-sm">
                 <span>Hemsida</span>
                 <input
                   class="input !rounded"
                   type="text"
-                  placeholder="Jenka.com"
+                  bind:value={user.website}
                 />
               </label>
               <label class="label text-sm">
                 <span>Tjänst</span>
-                <select class="select">
+                <select bind:value={user.field} class="select">
                   <option value="1">Finans</option>
                   <option value="2">Design</option>
                   <option value="3">Ingenjör</option>
@@ -155,13 +192,18 @@
                 </select>
               </label>
               <label class="label text-sm">
-                <span>Om Jenka</span>
+                <span>Om företaget</span>
                 <textarea
                   class="textarea"
                   rows="4"
                   placeholder="Lorem ipsum dolor sit amet consectetur adipisicing elit."
+                  bind:value={user.about}
                 />
               </label>
+              <button
+                on:click={updateUserInformation}
+                class="btn variant-filled-primary mt-6">Uppdatera</button
+              >
             </div>
           {:else}
             <div class="h-[50vh] overflow-y-scroll overflow-x-hidden">
@@ -172,38 +214,35 @@
                 __________________________________________________________
                 (härefter &quot;Medlemmen&quot;) med avseende på medlemskap i
                 Business Club Trelleborg (härefter &quot;Business Club&quot;).
-                <br><br>
+                <br /><br />
                 1. Medlemskapets Varaktighet Medlemskapet i Business Club gäller
-                från det datum då detta avtal undertecknas och fortsätter från
-                termin till termin. Varje termin omfattar en period enligt
-                följande: • Vårtermin: Januari till maj • Hösttermin: Augusti
-                till november 2. Medlemsförmåner Medlemskapet i Business Club
-                inkluderar följande förmåner: • Cirka 15 träffar per termin, som
-                äger rum varje tisdag i månaden kl. 11.55-13.00. •
-                Nätverksmöjligheter vid träffarna. • Lunch, vatten, kaffe/te och
-                kaka vid träffarna. • Möjlighet att ta med 2 gäster per termin
-                kostnadsfritt. Därefter debiteras en engångsavgift (betalas på
-                plats eller via faktura). • Medlemskapet meddelar priset per
-                månad för den kommande terminen senast 6 veckor före innehavande
-                termins slut. Fakturering sker i förväg. 3. Medlemmens Samtycke
-                Medlemmen samtycker till att dess kontaktuppgifter delas inom
-                Business Club Trelleborg med andra medlemmar som vill komma i
-                kontakt med Medlemmen. Samtycke ges även för att inkluderas i
-                Business Club Trelleborgs LinkedIn-grupp &quot;Business Club
-                Trelleborg.&quot; 4. Avslut av Medlemskap Medlemskapet i
-                Business Club förnyas automatiskt för en ny termin om det inte
-                sägs upp skriftligen av Medlemmen senast 1 månad innan
-                innehavande termin upphör. 5. Ansvar och Förpliktelser Både
-                Klubben och Medlemmen förbinder sig att uppfylla sina respektive
-                åtaganden enligt detta Avtal. 6. Ändringar i Avtalet Eventuella
-                ändringar eller tillägg till detta Avtal ska vara skriftliga och
-                undertecknas av båda parter. 7. Jurisdiktion Detta Avtal
-                regleras av och tolkas i enlighet med svensk lag. Undertecknat:
-                [Företagsnamn] [Adress] [Stad, Postnummer] Kontaktperson: [Ditt
-                Namn] Datum: [Datum] [Medlemsnamn] [Adress] [Stad, Postnummer]
-                Datum: [Datum] Genom att underteckna detta Avtal bekräftar både
-                Klubben och Medlemmen att de har läst, förstått och accepterat
-                villkoren i detta medlemskapsavtal för Business Club Trelleborg.
+                från det datum då detta avtal undertecknas och fortsätter från termin
+                till termin. Varje termin omfattar en period enligt följande: • Vårtermin:
+                Januari till maj • Hösttermin: Augusti till november 2. Medlemsförmåner
+                Medlemskapet i Business Club inkluderar följande förmåner: • Cirka
+                15 träffar per termin, som äger rum varje tisdag i månaden kl. 11.55-13.00.
+                • Nätverksmöjligheter vid träffarna. • Lunch, vatten, kaffe/te och
+                kaka vid träffarna. • Möjlighet att ta med 2 gäster per termin kostnadsfritt.
+                Därefter debiteras en engångsavgift (betalas på plats eller via faktura).
+                • Medlemskapet meddelar priset per månad för den kommande terminen
+                senast 6 veckor före innehavande termins slut. Fakturering sker i
+                förväg. 3. Medlemmens Samtycke Medlemmen samtycker till att dess
+                kontaktuppgifter delas inom Business Club Trelleborg med andra medlemmar
+                som vill komma i kontakt med Medlemmen. Samtycke ges även för att
+                inkluderas i Business Club Trelleborgs LinkedIn-grupp &quot;Business
+                Club Trelleborg.&quot; 4. Avslut av Medlemskap Medlemskapet i Business
+                Club förnyas automatiskt för en ny termin om det inte sägs upp skriftligen
+                av Medlemmen senast 1 månad innan innehavande termin upphör. 5. Ansvar
+                och Förpliktelser Både Klubben och Medlemmen förbinder sig att uppfylla
+                sina respektive åtaganden enligt detta Avtal. 6. Ändringar i Avtalet
+                Eventuella ändringar eller tillägg till detta Avtal ska vara skriftliga
+                och undertecknas av båda parter. 7. Jurisdiktion Detta Avtal regleras
+                av och tolkas i enlighet med svensk lag. Undertecknat: [Företagsnamn]
+                [Adress] [Stad, Postnummer] Kontaktperson: [Ditt Namn] Datum: [Datum]
+                [Medlemsnamn] [Adress] [Stad, Postnummer] Datum: [Datum] Genom att
+                underteckna detta Avtal bekräftar både Klubben och Medlemmen att
+                de har läst, förstått och accepterat villkoren i detta medlemskapsavtal
+                för Business Club Trelleborg.
               </p>
             </div>
           {/if}
