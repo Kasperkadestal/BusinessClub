@@ -7,9 +7,13 @@
 
   sortMembersAlphabetically();
 
-  function sortMembersAlphabetically() {
-    members = [...members].sort((a, b) => a.name.localeCompare(b.name));
-  }
+function sortMembersAlphabetically() {
+  members = [...members].sort((a, b) => {
+    const nameA = `${a.first_name} ${a.last_name}`;
+    const nameB = `${b.first_name} ${b.last_name}`;
+    return nameA.localeCompare(nameB);
+  });
+}
 </script>
 
 <div class="h-10vh card p-8 mb-4 flex flex-row gap-8">
