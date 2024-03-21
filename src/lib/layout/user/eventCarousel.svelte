@@ -7,42 +7,50 @@
   let elemMovies: HTMLDivElement;
   let events: any[];
   let guests: any[];
+  let participants: any[];
+
+  // Reactive statement to fetch guests and participants once $session.uid is set
+  $: if ($session.id.length > 0) {
+    fetchGuestsAndParticipants();
+  }
+
+  async function fetchGuestsAndParticipants() {
+    await fetchGuests();
+    await fetchParticipants();
+  }
 
   async function fetchGuests() {
-  return new Promise<void>(async (resolve) => {
-    const { data: guestData, error: guestError } = await supabase
-      .from("guest")
-      .select("*");
+    return new Promise<void>(async (resolve) => {
+      const { data: guestData, error: guestError } = await supabase
+        .from("guest")
+        .select("*");
 
-    if (guestData) {
-      guests = guestData;
-    }
+      if (guestData) {
+        guests = guestData;
+      }
 
-    if (guestError) {
-      console.error("Error fetching guests:", guestError.message);
-    }
+      if (guestError) {
+        console.error("Error fetching guests:", guestError.message);
+      }
 
-    resolve();
-  });
-}
-  async function saveExtra() {
-    
+      resolve();
+    });
   }
 
   function getGuest(event: { id: string }) {
-  // Check if guests is initialized and not undefined
-  if (guests && guests.length > 0) {
-    const matchingGuests = guests.filter(
-      (guest) => guest.eid === event.id && guest.uid === $session.id
-    );
-    
-    // Return the first matching guest or null if none found
-    return matchingGuests.length > 0 ? matchingGuests[0] : null;
-  }
+    // Check if guests is initialized and not undefined
+    if (guests && guests.length > 0) {
+      const matchingGuests = guests.filter(
+        (guest) => guest.eid === event.id && guest.uid === $session.id
+      );
 
-  // Return null if guests is not initialized or empty
-  return null;
-}
+      // Return the first matching guest or null if none found
+      return matchingGuests.length > 0 ? matchingGuests[0] : null;
+    }
+
+    // Return null if guests is not initialized or empty
+    return null;
+  }
 
   async function fetchEvents() {
     const { data: eventData, error: eventError } = await supabase
@@ -52,7 +60,7 @@
     if (eventData) {
       events = eventData;
     }
-    
+
     if (eventError) {
       console.error("Error fetching events:", eventError.message);
     }
@@ -76,8 +84,32 @@
     elemMovies.scroll(x, 0);
   }
 
+  async function fetchParticipants() {
+    const { data: participantData, error: participantError } = await supabase
+      .from("participant")
+      .select("*")
+      .eq("uid", $session.id); // Filter by current user ID
+
+    if (participantData) {
+      participants = participantData;
+    }
+
+    if (participantError) {
+      console.error("Error fetching participants:", participantError.message);
+    }
+  }
+
+  function getParticipant(eventId: string) {
+
+  const participant = participants.find(
+    (p) => p.eid === eventId && p.uid === $session.id
+  );
+
+  // Check if a participant was found; if not, return an object with a default status of 0
+  return participant ? participant.status : 0 ;
+}
+
   onMount(async () => {
-    await fetchGuests();
     await fetchEvents();
   });
 </script>
@@ -112,10 +144,15 @@
     bind:this={elemMovies}
     class="snap-x snap-mandatory scroll-smooth flex gap-2 pb-2 overflow-x-auto"
   >
-    {#if events}
-      {#if events.length > 0}
+    {#if $session.id != undefined && events != undefined}
+      {#if $session.id.length > 0 && participants != undefined}
         {#each events as event, i}
-          <CarouselCard eventInfo={event} guestInfo={getGuest(event)} counter={i} />
+          <CarouselCard
+            eventInfo={event}
+            guestInfo={getGuest(event)}
+            value={getParticipant(event.id)}
+            counter={i}
+          />
         {/each}
       {/if}
     {/if}

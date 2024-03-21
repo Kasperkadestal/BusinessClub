@@ -13,7 +13,6 @@
   import { session } from "../user";
 
   let valueG: number = 1;
-  let value: number = 2;
 
   let newGuestInfo: { name: string; company: string };
   newGuestInfo = { name: "", company: "" };
@@ -21,6 +20,8 @@
   export let counter: number;
   export let eventInfo: { title: string; text: string; date: any; id: string };
   export let guestInfo: { name: string } | null;
+  export let value: number;
+  let isInitialized = false; 
 
   function generatePopupSettings(target: string): PopupSettings {
     return {
@@ -67,6 +68,63 @@
       console.error("Incomplete guest information");
     }
   }
+
+  // Reactive statement to handle RadioItem selection
+  $: if (value !== undefined) {
+    if (isInitialized) {
+      console.log("value :", value);
+      
+      upsertParticipant($session.id, eventInfo.id, value);
+    }
+    isInitialized = true;
+  }
+
+  // Function to insert or update the participant's status in the database
+  // Function to insert or update the participant's status in the database
+async function upsertParticipant(userId: string, eventId: string, newStatus: number) {
+  if (!userId || !eventId) return; // Ensure userId and eventId are valid
+
+  // Fetch current status from the database for comparison
+  const { data: existingParticipants, error: selectError } = await supabase
+    .from('participant')
+    .select('status')
+    .match({ uid: userId, eid: eventId })
+    .single();
+
+  if (selectError) {
+    console.error('Error checking for existing participant:', selectError.message);
+    return;
+  }
+
+  // Proceed with update only if the status has changed
+  if (existingParticipants && existingParticipants.status !== newStatus) {
+    
+    const { error: updateError } = await supabase
+      .from('participant')
+      .update({ status: newStatus })
+      .match({ uid: userId, eid: eventId });
+
+    if (updateError) {
+      console.error('Error updating participant status:', updateError.message);
+    } else {
+      console.log('Participant status updated successfully');      
+    }
+  } else if (!existingParticipants) {
+    // If participant does not exist, insert a new one
+    const { error: insertError } = await supabase
+      .from('participant')
+      .insert([
+        { uid: userId, eid: eventId, status: newStatus }
+      ]);
+
+    if (insertError) {
+      console.error('Error adding new participant:', insertError.message);
+    } else {
+      console.log('New participant added successfully');
+    }
+  }
+}
+
 </script>
 
 <div class="shrink-0 w-[28%] h-fit !bg-surface-900 card snap-start text-center">
@@ -79,29 +137,29 @@
   </div>
   <RadioGroup rounded="none" display="flex">
     <RadioItem
-      active="variant-filled-success"
-      hover="hover:variant-soft-success"
-      bind:group={value}
-      name="justify"
-      value={0}
-    >
-      <div class="text-center">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-6 h-6 inline-block"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      </div>
-    </RadioItem>
+    active="variant-filled-error"
+    hover="hover:variant-soft-error"
+    bind:group={value}
+    name="justify"
+    value={0}
+  >
+    <div class="text-center">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-6 h-6 inline-block"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+    </div>
+  </RadioItem>
     <RadioItem
       active="variant-filled-warning"
       hover="hover:variant-soft-warning"
@@ -127,29 +185,29 @@
       </div>
     </RadioItem>
     <RadioItem
-      active="variant-filled-error"
-      hover="hover:variant-soft-error"
-      bind:group={value}
-      name="justify"
-      value={2}
-    >
-      <div class="text-center">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-6 h-6 inline-block"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      </div>
-    </RadioItem>
+    active="variant-filled-success"
+    hover="hover:variant-soft-success"
+    bind:group={value}
+    name="justify"
+    value={2}
+  >
+    <div class="text-center">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-6 h-6 inline-block"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+    </div>
+  </RadioItem>
   </RadioGroup>
   <div>
     <div class="opacity-60">

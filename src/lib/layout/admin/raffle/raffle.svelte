@@ -38,10 +38,22 @@
 
   $: tableComponents = $raffleStore;
 
-  onMount(() => {
+  let events = [];
+
+  onMount(async () => {
+    await fetchEvents();
     fetchLatestSeating();
     updateTables();
   });
+
+  async function fetchEvents() {
+    const { data, error } = await supabase.from("event").select("id, title");
+    if (error) {
+      console.error("Error fetching events:", error);
+    } else {
+      events = data;
+    }
+  }
 
   async function fetchLatestSeating() {
     const { data, error } = await supabase
@@ -136,7 +148,7 @@
       const participant: Participant = {
         name: participantCheckIn.name,
         key: participantCheckIn.key,
-        company: participantCheckIn.company
+        company: participantCheckIn.company,
       };
       const seatPlacement = checkInParticipant(participant);
       checkInText = `${participantCheckIn.name}: Bord ${
@@ -182,7 +194,7 @@
     return $users.map((user) => ({
       name: `${user.first_name} ${user.last_name}`,
       key: user.id,
-      company: user.company
+      company: user.company,
       // Add more participant details as needed
     }));
   }
@@ -281,6 +293,49 @@
     $raffleStore.pop();
     raffleStore.set($raffleStore);
   }
+
+  let selectedEventId = '';
+
+async function handleEventChange() {
+  if (selectedEventId === '') {
+    // "Alla medlemmar" is selected
+    members = generateMembers();
+  } else {
+    // An event is selected
+    await fetchParticipantsForEvent(selectedEventId);
+  }
+  sortMembersAlphabetically();
+}
+
+async function fetchParticipantsForEvent(eventId) {
+  const { data, error } = await supabase
+    .from('participant')
+    .select(`
+      pid,
+      eid,
+      status,
+      profile (
+        id,
+        first_name,
+        last_name,
+        company
+      )
+    `)
+    .eq('eid', eventId)
+    .neq('status', 0);
+
+  if (error) {
+    console.error("Error fetching participants:", error);
+  } else {
+    members = data.map(participant => ({
+      name: `${participant.profile.first_name} ${participant.profile.last_name}`,
+      company: participant.profile.company,
+      key: participant.profile.id
+    }));
+  }
+}
+
+
 </script>
 
 <Modal />
@@ -305,10 +360,20 @@
     </svelte:fragment>
     <svelte:fragment slot="summary">Avprickning</svelte:fragment>
     <svelte:fragment slot="content">
-      <div class="card p-8 items-center">
-        <p class="text-lg text-center w-full">
-          <b>{checkInText}</b>
-        </p>
+      <div class="flex gap-4">
+        <div class="card p-8 items-center w-4/5">
+          <p class="text-lg text-center w-full">
+            <b>{checkInText}</b>
+          </p>
+        </div>
+        <label class="p-8 w-1/5 card">
+          <select class="select" bind:value={selectedEventId} on:change={handleEventChange}>
+            <option value="">Alla medlemmar</option>
+            {#each events as event}
+              <option value="{event.id}">{event.title}</option>
+            {/each}
+          </select>
+        </label>
       </div>
       <div class="overflow-scroll overflow-x-hidden h-[50vh] card p-8">
         <ListBox multiple>
