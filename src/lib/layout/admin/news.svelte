@@ -85,7 +85,7 @@
         {:else}
           <div class="flex h-[60vh] justify-center items-center">
             <p class="text-center">
-              Select a contact or click "New Contact" to start a conversation.
+              Välj en nyhetsartikel i listan.
             </p>
           </div>
         {/if}

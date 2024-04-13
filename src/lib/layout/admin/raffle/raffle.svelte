@@ -15,13 +15,13 @@
     type ModalSettings,
     Modal,
   } from "@skeletonlabs/skeleton";
-  import { fakerSV } from "@faker-js/faker";
 
   type Participant = {
     name: string;
     company: string;
     key?: string;
-    // Add more participant details as needed
+    isActive: boolean;
+    selectedTableId?: number; // New property to hold the table ID for each member
   };
 
   type Seating = {
@@ -34,9 +34,17 @@
   let seatings: Seating[][] = []; // Assuming seatings is defined globally
 
   let numTables = 2; // Initial number of tables
-  let seatsPerTable = 6; // Initial seats per table
+  let seatsPerTable = 3; // Initial seats per table
+  let selectedTableId; // Declare a variable to hold the selected table's ID
 
   $: tableComponents = $raffleStore;
+  $: availableTables = getAvailableTables($raffleStore);
+
+  function getAvailableTables(raffleStore) {
+    return raffleStore.filter(
+      (table) => table.participants.length < table.seats
+    );
+  }
 
   let events = [];
 
@@ -46,12 +54,32 @@
     updateTables();
   });
 
+  function getWeekNumber(d: Date) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil(
+      ((d.valueOf() - yearStart.valueOf()) / 86400000 + 1) / 7
+    );
+    return weekNo;
+  }
+
   async function fetchEvents() {
-    const { data, error } = await supabase.from("event").select("id, title");
+    const { data, error } = await supabase
+      .from("event")
+      .select("id, title, date");
     if (error) {
       console.error("Error fetching events:", error);
     } else {
-      events = data;
+      events = data.map((event) => {
+        const eventDate = new Date(event.date);
+        const year = eventDate.getFullYear();
+        const week = getWeekNumber(eventDate);
+        return {
+          ...event,
+          date: `${year} | Vecka ${week}`,
+        };
+      });
     }
   }
 
@@ -76,6 +104,7 @@
     const seat = generateSeatPlacement(participant);
     $raffleStore[seat.tableId].participants.push(participant);
     raffleStore.set($raffleStore); // Update the store to trigger reactivity
+    availableTables = getAvailableTables($raffleStore);
     return seat;
   }
 
@@ -154,6 +183,16 @@
       checkInText = `${participantCheckIn.name}: Bord ${
         seatPlacement.tableId + 1
       }`;
+
+      const memberIndex = members.findIndex((m) => m.key === participant.key);
+
+      members[memberIndex] = {
+        ...members[memberIndex],
+        selectedTableId: seatPlacement.tableId + 1,
+        isActive: true,
+      };
+      members = [...members]; // create a new reference to trigger update in Svelte
+
       console.log(
         `You are seated at Table ${seatPlacement.tableId}, Seat ${seatPlacement.seatNumber}`
       );
@@ -195,7 +234,8 @@
       name: `${user.first_name} ${user.last_name}`,
       key: user.id,
       company: user.company,
-      // Add more participant details as needed
+      isActive: false, // Add isActive property
+      selectedTableId: null, // Initialize with null or any default value
     }));
   }
 
@@ -246,6 +286,13 @@
         if (r) {
           removedMembers.forEach((r) => {
             removeParticipant(r);
+            members = members.map((member) => {
+              if (member.key === r.key) {
+                // Assuming 'key' is your id field
+                return { ...member, isActive: false };
+              }
+              return member;
+            });
           });
           console.log("YES");
         } else {
@@ -294,48 +341,111 @@
     raffleStore.set($raffleStore);
   }
 
-  let selectedEventId = '';
+  let selectedEventId = "";
 
-async function handleEventChange() {
-  if (selectedEventId === '') {
-    // "Alla medlemmar" is selected
-    members = generateMembers();
-  } else {
-    // An event is selected
-    await fetchParticipantsForEvent(selectedEventId);
+  async function handleEventChange() {
+    if (selectedEventId === "") {
+      members = generateMembers();
+    } else {
+      // An event is selected
+      await fetchParticipantsForEvent(selectedEventId);
+    }
   }
-  sortMembersAlphabetically();
-}
 
-async function fetchParticipantsForEvent(eventId) {
-  const { data, error } = await supabase
-    .from('participant')
-    .select(`
-      pid,
-      eid,
-      status,
-      profile (
-        id,
-        first_name,
-        last_name,
-        company
-      )
-    `)
-    .eq('eid', eventId)
-    .neq('status', 0);
+  async function fetchParticipantsForEvent(eventId) {
+    const { data, error } = await supabase
+        .from("participant")
+        .select("pid, eid, status, profile (id, first_name, last_name, company)")
+        .eq("eid", eventId);
 
-  if (error) {
-    console.error("Error fetching participants:", error);
-  } else {
-    members = data.map(participant => ({
-      name: `${participant.profile.first_name} ${participant.profile.last_name}`,
-      company: participant.profile.company,
-      key: participant.profile.id
+    if (error) {
+        console.error("Error fetching participants:", error);
+        return;
+    }
+
+    let eventParticipants = data.map(participant => ({
+        name: `${participant.profile.first_name} ${participant.profile.last_name}`,
+        company: participant.profile.company,
+        key: participant.profile.id,
+        status: participant.status,
+        isActive: false  // Indicates participation in an event
     }));
-  }
+
+    // Merge with all members and assign default status 0 if not found in event participants
+    members = $users.map(user => {
+        const participant = eventParticipants.find(p => p.key === user.id);
+        return participant || {
+            name: `${user.first_name} ${user.last_name}`,
+            company: user.company,
+            key: user.id,
+            status: 0,  // Default status
+            isActive: false
+        };
+    });
+
+    // Sort by status descending, then by name alphabetically
+    members.sort((a, b) => {
+        if (b.status - a.status !== 0) {
+            return b.status - a.status;
+        }
+        return a.name.localeCompare(b.name);
+    });
+
+    members = [...members]; // Update array reference to trigger reactivity in Svelte
+    console.log("Sorted members:", members.map(m => `${m.name}: ${m.status}`));
 }
 
+  
+  $: sortedMembers = [...members];
 
+  function assignManually(member: any, tableInput: any) {
+    const existingTableIndex = $raffleStore.findIndex((table) =>
+      table.participants.some((p) => p.name === member.name)
+    );
+
+    // If the participant is found at an existing table, remove them from that table
+    if (existingTableIndex !== -1) {
+      $raffleStore[existingTableIndex].participants = $raffleStore[
+        existingTableIndex
+      ].participants.filter((p) => p.name !== member.name);
+    }
+
+    let table = availableTables.filter((table) => table.id == tableInput);
+
+    table = table[0];
+
+    const participant: Participant = {
+      name: member.name,
+      key: member.key,
+      company: member.company,
+      isActive: true,
+    };
+
+    $raffleStore[table.id - 1].participants.push(participant);
+    raffleStore.set($raffleStore); // Update the store to trigger reactivity
+
+    checkInText = `${member.name}: Bord ${table.id}`;
+    console.log(
+      `You are seated at Table ${table.id}, Seat ${table.participants.length - 1}`
+    );
+    // Find the index of the member you want to update
+    const memberIndex = members.findIndex((m) => m.key === member.key);
+
+    if (memberIndex !== -1) {
+      // Create a new member object with updated properties
+      const updatedMember = { ...members[memberIndex], isActive: true };
+
+      // Create a new array with the updated member
+      members = [
+        ...members.slice(0, memberIndex),
+        updatedMember,
+        ...members.slice(memberIndex + 1),
+      ];
+    }
+
+    selectedMembers = [...selectedMembers, participant];
+    console.log(selectedMembers);
+  }
 </script>
 
 <Modal />
@@ -367,17 +477,21 @@ async function fetchParticipantsForEvent(eventId) {
           </p>
         </div>
         <label class="p-8 w-1/5 card">
-          <select class="select" bind:value={selectedEventId} on:change={handleEventChange}>
-            <option value="">Alla medlemmar</option>
+          <select
+            class="select"
+            bind:value={selectedEventId}
+            on:change={handleEventChange}
+          >
+            <option value="">Välj event</option>
             {#each events as event}
-              <option value="{event.id}">{event.title}</option>
+              <option value={event.id}>{event.date}</option>
             {/each}
           </select>
         </label>
       </div>
       <div class="overflow-scroll overflow-x-hidden h-[50vh] card p-8">
         <ListBox multiple>
-          {#each members as member, index}
+          {#each sortedMembers as member, index}
             <ListBoxItem
               bind:group={selectedMembers}
               name="medium"
@@ -385,11 +499,70 @@ async function fetchParticipantsForEvent(eventId) {
               padding="p-4"
               rounded="none"
               value={member}
-              class={index % 2 === 0 ? "" : "bg-tertiary-800/10"}
+              class="{index % 2 === 0
+                ? ''
+                : 'bg-tertiary-800/10'} {member.isActive
+                ? 'variant-ghost-primary'
+                : ''}"
             >
-              <p class="text-lg">
-                {member.name}
-              </p>
+              <div class="flex items-center">
+                <div class="w-4/5">
+                  <svg
+                    class="w-5 h-5 mr-2 {member.status === 2
+                      ? 'text-success-800'
+                      : member.status === 1
+                        ? 'text-warning-800'
+                        : 'text-error-800'}"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M12 20a7.966 7.966 0 0 1-5.002-1.756l.002.001v-.683c0-1.794 1.492-3.25 3.333-3.25h3.334c1.84 0 3.333 1.456 3.333 3.25v.683A7.966 7.966 0 0 1 12 20ZM2 12C2 6.477 6.477 2 12 2s10 4.477 10 10c0 5.5-4.44 9.963-9.932 10h-.138C6.438 21.962 2 17.5 2 12Zm10-5c-1.84 0-3.333 1.455-3.333 3.25S10.159 13.5 12 13.5c1.84 0 3.333-1.455 3.333-3.25S13.841 7 12 7Z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+
+                  <p class="text-lg">
+                    {member.name}
+                  </p>
+                </div>
+                <div class="w-1/5 flex gap-2">
+                  <select class="select" bind:value={member.selectedTableId}>
+                    {#each availableTables as table}
+                      <option value={table.id}>Bord {table.id}</option>
+                    {/each}
+                  </select>
+                  <button
+                    class="btn variant-ghost-primary rounded-sm"
+                    on:click={() =>
+                      assignManually(member, member.selectedTableId)}
+                  >
+                    <!-- Check in manually button -->
+                    <svg
+                      class="w-6 h-6 text-gray-800 dark:text-white"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 11.917 9.724 16.5 19 7.5"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
               <small class="opacity-50">{member.company}</small>
             </ListBoxItem>
           {/each}

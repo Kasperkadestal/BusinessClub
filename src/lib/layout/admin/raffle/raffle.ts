@@ -12,8 +12,8 @@ type Table = {
 };
 
 const initialTables: Table[] = [
-  { id: 1, seats: 4, participants: [] },
-  { id: 2, seats: 6, participants: [] },
+  { id: 1, seats: 3, participants: [] },
+  { id: 2, seats: 3, participants: [] },
   // Add more tables as needed
 ];
 
