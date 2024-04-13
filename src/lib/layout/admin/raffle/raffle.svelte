@@ -41,9 +41,10 @@
   $: availableTables = getAvailableTables($raffleStore);
 
   function getAvailableTables(raffleStore) {
-    return raffleStore.filter(
-      (table) => table.participants.length < table.seats
-    );
+    return raffleStore.map((table) => ({
+      ...table,
+      isAvailable: table.participants.length < table.seats,
+    }));
   }
 
   let events = [];
@@ -354,48 +355,52 @@
 
   async function fetchParticipantsForEvent(eventId) {
     const { data, error } = await supabase
-        .from("participant")
-        .select("pid, eid, status, profile (id, first_name, last_name, company)")
-        .eq("eid", eventId);
+      .from("participant")
+      .select("pid, eid, status, profile (id, first_name, last_name, company)")
+      .eq("eid", eventId);
 
     if (error) {
-        console.error("Error fetching participants:", error);
-        return;
+      console.error("Error fetching participants:", error);
+      return;
     }
 
-    let eventParticipants = data.map(participant => ({
-        name: `${participant.profile.first_name} ${participant.profile.last_name}`,
-        company: participant.profile.company,
-        key: participant.profile.id,
-        status: participant.status,
-        isActive: false  // Indicates participation in an event
+    let eventParticipants = data.map((participant) => ({
+      name: `${participant.profile.first_name} ${participant.profile.last_name}`,
+      company: participant.profile.company,
+      key: participant.profile.id,
+      status: participant.status,
+      isActive: false, // Indicates participation in an event
     }));
 
     // Merge with all members and assign default status 0 if not found in event participants
-    members = $users.map(user => {
-        const participant = eventParticipants.find(p => p.key === user.id);
-        return participant || {
-            name: `${user.first_name} ${user.last_name}`,
-            company: user.company,
-            key: user.id,
-            status: 0,  // Default status
-            isActive: false
-        };
+    members = $users.map((user) => {
+      const participant = eventParticipants.find((p) => p.key === user.id);
+      return (
+        participant || {
+          name: `${user.first_name} ${user.last_name}`,
+          company: user.company,
+          key: user.id,
+          status: 0, // Default status
+          isActive: false,
+        }
+      );
     });
 
     // Sort by status descending, then by name alphabetically
     members.sort((a, b) => {
-        if (b.status - a.status !== 0) {
-            return b.status - a.status;
-        }
-        return a.name.localeCompare(b.name);
+      if (b.status - a.status !== 0) {
+        return b.status - a.status;
+      }
+      return a.name.localeCompare(b.name);
     });
 
     members = [...members]; // Update array reference to trigger reactivity in Svelte
-    console.log("Sorted members:", members.map(m => `${m.name}: ${m.status}`));
-}
+    console.log(
+      "Sorted members:",
+      members.map((m) => `${m.name}: ${m.status}`)
+    );
+  }
 
-  
   $: sortedMembers = [...members];
 
   function assignManually(member: any, tableInput: any) {
@@ -534,9 +539,11 @@
                 <div class="w-1/5 flex gap-2">
                   <select class="select" bind:value={member.selectedTableId}>
                     {#each availableTables as table}
-                      <option value={table.id}>Bord {table.id}</option>
+                        <option value={table.id} disabled={!table.isAvailable && table.id !== member.selectedTableId}>
+                            Bord {table.id} {table.isAvailable ? '' : '(Full)'}
+                        </option>
                     {/each}
-                  </select>
+                </select>
                   <button
                     class="btn variant-ghost-primary rounded-sm"
                     on:click={() =>
