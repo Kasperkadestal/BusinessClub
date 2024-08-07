@@ -53,18 +53,23 @@
   }
 
   async function fetchEvents() {
-    const { data: eventData, error: eventError } = await supabase
-      .from("event")
-      .select("*");
+  // Get the current date and time
+  const currentDate = new Date().toISOString();
 
-    if (eventData) {
-      events = eventData;
-    }
+  // Fetch events where the date is greater than or equal to the current date and time
+  const { data: eventData, error: eventError } = await supabase
+    .from("event")
+    .select("*")
+    .gte("date", currentDate); // .gte stands for 'greater than or equal'
 
-    if (eventError) {
-      console.error("Error fetching events:", eventError.message);
-    }
+  if (eventData) {
+    events = eventData;
   }
+
+  if (eventError) {
+    console.error("Error fetching events:", eventError.message);
+  }
+}
 
   function multiColumnLeft(): void {
     let x = elemMovies.scrollWidth;

@@ -4,7 +4,7 @@
 </script>
 
 <AppRail class="!bg-surface-900 border-r-2 border-surface-800">
-  <AppRailTile bind:group={$selectedPage} name="tile-1" value={0} title="tile-0">
+  <AppRailTile bind:group={$selectedPage} name="tile-1" value={0} title="Hem">
     <svelte:fragment slot="lead">
       <div class="text-center">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 inline-block">
@@ -15,7 +15,7 @@
       </div>
     </svelte:fragment>
   </AppRailTile>
-  <AppRailTile bind:group={$selectedPage} name="tile-2" value={1} title="tile-1">
+  <AppRailTile bind:group={$selectedPage} name="tile-2" value={1} title="Meddelanden">
     <svelte:fragment slot="lead">
       <div class="text-center">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 inline-block">
@@ -26,7 +26,7 @@
       </div>
     </svelte:fragment>
   </AppRailTile>
-  <AppRailTile bind:group={$selectedPage} name="tile-3" value={2} title="tile-2">
+  <AppRailTile bind:group={$selectedPage} name="tile-3" value={2} title="Nyheter">
     <svelte:fragment slot="lead">
       <div class="text-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block">
@@ -37,7 +37,7 @@
       </div>
     </svelte:fragment>
   </AppRailTile>
-  <AppRailTile bind:group={$selectedPage} name="tile-4" value={3} title="tile-3 ">
+  <AppRailTile bind:group={$selectedPage} name="tile-4" value={3} title="Fakturor">
     <svelte:fragment slot="lead">
       <div class="text-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block">
@@ -48,7 +48,7 @@
       </div>
     </svelte:fragment>
   </AppRailTile>
-  <AppRailTile bind:group={$selectedPage} name="tile-5" value={4} title="tile-4 ">
+  <AppRailTile bind:group={$selectedPage} name="tile-5" value={4} title="Användare">
     <svelte:fragment slot="lead">
       <div class="text-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block">
@@ -57,7 +57,7 @@
       </div>
     </svelte:fragment>
   </AppRailTile>
-  <AppRailTile bind:group={$selectedPage} name="tile-5" value={5} title="tile-5 ">
+  <AppRailTile bind:group={$selectedPage} name="tile-5" value={5} title="Avprickning">
     <svelte:fragment slot="lead">
       <div class="text-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block">
@@ -66,7 +66,7 @@
       </div>
     </svelte:fragment>
   </AppRailTile>
-  <AppRailTile bind:group={$selectedPage} name="tile-6" value={6} title="tile-6 ">
+  <AppRailTile bind:group={$selectedPage} name="tile-6" value={6} title="Event">
     <svelte:fragment slot="lead">
       <div class="text-center">
         <svg class="w-6 h-6 inline-block" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">

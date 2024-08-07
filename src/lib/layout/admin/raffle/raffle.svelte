@@ -14,6 +14,7 @@
     getModalStore,
     type ModalSettings,
     Modal,
+    SlideToggle,
   } from "@skeletonlabs/skeleton";
 
   type Participant = {
@@ -22,6 +23,7 @@
     key?: string;
     isActive: boolean;
     selectedTableId?: number; // New property to hold the table ID for each member
+    guest?: any;
   };
 
   type Seating = {
@@ -101,6 +103,24 @@
     }
   }
 
+  function removeGuest(guestToRemove) {
+    // Find the guest in the guests array by matching the key
+    const guestIndex = guests.findIndex(
+      (guest) => guest.key === guestToRemove.key
+    );
+
+    if (guestIndex !== -1) {
+      // Remove the guest from the array
+      guests.splice(guestIndex, 1);
+
+      // Update the guests array to trigger reactivity in Svelte
+      guests = [...guests];
+      removeParticipant(guestToRemove);
+    } else {
+      console.warn("Guest not found in the guests array");
+    }
+  }
+
   function checkInParticipant(participant: Participant) {
     const seat = generateSeatPlacement(participant);
     $raffleStore[seat.tableId].participants.push(participant);
@@ -172,6 +192,7 @@
       console.log(
         `You are already seated at Table ${existingParticipant.id + 1}`
       );
+
       // Optionally, you can display the existing seat to the user in the UI
     } else {
       // Your existing logic for checking in a participant
@@ -187,12 +208,27 @@
 
       const memberIndex = members.findIndex((m) => m.key === participant.key);
 
-      members[memberIndex] = {
-        ...members[memberIndex],
-        selectedTableId: seatPlacement.tableId + 1,
-        isActive: true,
-      };
-      members = [...members]; // create a new reference to trigger update in Svelte
+      if (memberIndex !== -1) {
+        members[memberIndex] = {
+          ...members[memberIndex],
+          selectedTableId: seatPlacement.tableId + 1,
+          isActive: true,
+        };
+        members = [...members]; // create a new reference to trigger update in Svelte
+      } else {
+        const guestIndex = guests.findIndex((g) => g.key === participant.key);
+
+        if (guestIndex !== -1) {
+          guests[guestIndex] = {
+            ...guests[guestIndex],
+            selectedTableId: seatPlacement.tableId + 1,
+            isActive: true,
+          };
+          guests = [...guests]; // Trigger reactivity in Svelte
+        } else {
+          console.warn("Participant not found in members or guests arrays");
+        }
+      }
 
       console.log(
         `You are seated at Table ${seatPlacement.tableId}, Seat ${seatPlacement.seatNumber}`
@@ -215,7 +251,7 @@
       participants: $raffleStore.flatMap((table) =>
         table.participants.map((participant) => ({
           table: `${table.id}`,
-          participant: participant.name,
+          participant: participant,
         }))
       ),
     };
@@ -259,14 +295,20 @@
       (member) => !prevSelectedMembers.includes(member)
     );
 
-    const removedMembers = prevSelectedMembers.filter(
-      (member) => !selectedMembers.includes(member)
+    const removedMembers = prevSelectedMembers.filter((prevMember) =>
+      addedMembers.some((addedMember) => addedMember.key === prevMember.key)
     );
 
     if (addedMembers.length > 0) {
       // Handle added members if needed
       addedMembers.forEach((newUser) => handleCheckIn(newUser));
     }
+    console.log("Added");
+    console.log(addedMembers);
+    console.log("Prev");
+    console.log(prevSelectedMembers);
+    console.log("Removed");
+    console.log(removedMembers);
 
     if (removedMembers.length > 0) {
       const name = removedMembers[0].name;
@@ -275,7 +317,7 @@
         const modal: ModalSettings = {
           type: "confirm",
           title: "Bekräfta borttagning",
-          body: "Är du säker på att du vill ta bort " + { name }.name + "?",
+          body: "Är du säker på att du vill ta bort " + name + "?",
           buttonTextCancel: "Nej",
           buttonTextConfirm: "Ja",
           response: (r: boolean) => {
@@ -289,25 +331,33 @@
             removeParticipant(r);
             members = members.map((member) => {
               if (member.key === r.key) {
-                // Assuming 'key' is your id field
                 return { ...member, isActive: false };
               }
               return member;
             });
           });
           console.log("YES");
+          prevSelectedMembers = prevSelectedMembers.filter(
+        (prevMember) => !removedMembers.some((removedMember) => removedMember.key === prevMember.key)
+      );
         } else {
           console.log("NO");
           removedMembers.forEach((r) => {
             selectedMembers.push(r);
-            selectedMembers = selectedMembers;
+            selectedMembers = [...selectedMembers];
             console.log(selectedMembers);
           });
         }
         modalStore.clear(); // Reset modal state
       });
     }
+    selectedMembers = selectedMembers.filter(
+        (prevMember) => !removedMembers.some((removedMember) => removedMember.key === prevMember.key)
+      );
     prevSelectedMembers = [...selectedMembers];
+    console.log("SELECTED");
+    console.log(selectedMembers);
+    
   }
 
   function removeParticipant(participant: Participant) {
@@ -319,6 +369,10 @@
         table.participants.splice(index, 1);
         raffleStore.set($raffleStore); // Update the store to trigger reactivity
         checkInText = `${participant.name} lämnar bord ${table.id}`;
+      } else {
+        console.log("Not found in index");
+        console.log($raffleStore);
+        console.log(participant.name);
       }
     });
   }
@@ -451,6 +505,65 @@
     selectedMembers = [...selectedMembers, participant];
     console.log(selectedMembers);
   }
+
+  let guestName = "";
+
+  const modal: ModalSettings = {
+    type: "prompt",
+    // Data
+    title: "Name på gäst",
+    body: "Provide your first name in the field below.",
+    // Populates the input value and attributes
+    value: "Namn",
+    valueAttr: { type: "text", minlength: 3, maxlength: 10, required: true },
+    // Returns the updated response value
+    response: (r: string) => (guestName = r),
+  };
+
+  let guests = [];
+
+  function addGuest(member) {
+    new Promise<boolean>((resolve) => {
+      const modal: ModalSettings = {
+        type: "prompt",
+        // Data
+        title: "Lägg till gäst",
+        body: "Skriv gästens fulla namn:",
+        // Populates the input value and attributes
+        value: "",
+        valueAttr: {
+          type: "text",
+          minlength: 3,
+          maxlength: 20,
+          required: true,
+        },
+        response: (r: boolean | string) => {
+          resolve(r);
+        },
+      };
+      modalStore.trigger(modal);
+    }).then((r: boolean | string) => {
+      if (typeof r === "string" && r.trim().length > 0) {
+        const guest = {
+          name: r,
+          company: member.company,
+          key: `${member.key}-guest`,
+          isActive: false,
+          selectedTableId: null,
+        };
+
+        // Assuming each member has a property 'guests' which is an array
+        if (!member.guests) {
+          member.guests = [];
+        }
+
+        member.guests.push(guest);
+        members = [...members]; // Trigger reactivity in Svelte
+        guests.push(guest);
+        guests = guests;
+      }
+    });
+  }
 </script>
 
 <Modal />
@@ -536,14 +649,40 @@
                     {member.name}
                   </p>
                 </div>
-                <div class="w-1/5 flex gap-2">
+
+                <div class="w-2/5 flex gap-2 items-center">
+                  <button
+                    class="btn variant-ghost-secondary rounded-sm"
+                    on:click={() => addGuest(member)}
+                  >
+                    <svg
+                      class="w-6 h-6 text-gray-800 dark:text-white"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M9 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4H7Zm8-1a1 1 0 0 1 1-1h1v-1a1 1 0 1 1 2 0v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 0 1-1-1Z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </button>
                   <select class="select" bind:value={member.selectedTableId}>
                     {#each availableTables as table}
-                        <option value={table.id} disabled={!table.isAvailable && table.id !== member.selectedTableId}>
-                            Bord {table.id} {table.isAvailable ? '' : '(Full)'}
-                        </option>
+                      <option
+                        value={table.id}
+                        disabled={!table.isAvailable &&
+                          table.id !== member.selectedTableId}
+                      >
+                        Bord {table.id}
+                        {table.isAvailable ? "" : "(Full)"}
+                      </option>
                     {/each}
-                </select>
+                  </select>
                   <button
                     class="btn variant-ghost-primary rounded-sm"
                     on:click={() =>
@@ -573,6 +712,113 @@
               <small class="opacity-50">{member.company}</small>
             </ListBoxItem>
           {/each}
+
+          <!-- Display guests if any -->
+          {#if guests}
+            {#each guests as guest, index}
+              <ListBoxItem
+                bind:group={selectedMembers}
+                name="medium"
+                active="variant-ghost-primary"
+                padding="p-4"
+                rounded="none"
+                value={guest}
+                class="{index % 2 === 0
+                  ? ''
+                  : 'bg-tertiary-800/10'} {guest.isActive
+                  ? 'variant-ghost-primary'
+                  : ''}"
+              >
+                <div class="flex items-center">
+                  <div class="w-4/5">
+                    <svg
+                      class="w-5 h-5 mr-2 {guest.status === 2
+                        ? 'text-success-800'
+                        : guest.status === 1
+                          ? 'text-warning-800'
+                          : 'text-error-800'}"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M12 20a7.966 7.966 0 0 1-5.002-1.756l.002.001v-.683c0-1.794 1.492-3.25 3.333-3.25h3.334c1.84 0 3.333 1.456 3.333 3.25v.683A7.966 7.966 0 0 1 12 20ZM2 12C2 6.477 6.477 2 12 2s10 4.477 10 10c0 5.5-4.44 9.963-9.932 10h-.138C6.438 21.962 2 17.5 2 12Zm10-5c-1.84 0-3.333 1.455-3.333 3.25S10.159 13.5 12 13.5c1.84 0 3.333-1.455 3.333-3.25S13.841 7 12 7Z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+
+                    <p class="text-lg">
+                      {guest.name}
+                    </p>
+                  </div>
+
+                  <div class="w-2/5 flex gap-2 items-center">
+                    <button
+                      class="btn variant-ghost-error rounded-sm"
+                      on:click={() => removeGuest(guest)}
+                    >
+                      <svg
+                        class="w-6 h-6 text-gray-800 dark:text-white"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M5 8a4 4 0 1 1 8 0 4 4 0 0 1-8 0Zm-2 9a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1Zm13-6a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-4Z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                    <select class="select" bind:value={guest.selectedTableId}>
+                      {#each availableTables as table}
+                        <option
+                          value={table.id}
+                          disabled={!table.isAvailable &&
+                            table.id !== guest.selectedTableId}
+                        >
+                          Bord {table.id}
+                          {table.isAvailable ? "" : "(Full)"}
+                        </option>
+                      {/each}
+                    </select>
+                    <button
+                      class="btn variant-ghost-primary rounded-sm"
+                      on:click={() =>
+                        assignManually(guest, guest.selectedTableId)}
+                    >
+                      <!-- Check in manually button -->
+                      <svg
+                        class="w-6 h-6 text-gray-800 dark:text-white"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M5 11.917 9.724 16.5 19 7.5"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <small class="opacity-50">{guest.company}</small>
+              </ListBoxItem>
+            {/each}
+          {/if}
         </ListBox>
       </div>
     </svelte:fragment>
@@ -616,12 +862,15 @@
             id="seatsPerTable"
             min="1"
           />
-          <button on:click={updateTables}>Updatera</button>
+          <button
+            class="btn btn-md variant-ghost-tertiary mt-4"
+            on:click={updateTables}>Updatera</button
+          >
+          <button
+            class="btn btn-md variant-ghost-tertiary mt-4"
+            on:click={exportToJson}>Spara</button
+          >
         </div>
-        <button
-          class="btn btn-md variant-ghost-tertiary mt-4"
-          on:click={exportToJson}>Export</button
-        >
       </div>
 
       <div class="grid grid-cols-3 gap-4 mt-4">
